@@ -1,0 +1,9 @@
+spring:
+#  jpa:
+#    hibernate:
+#      ddl-auto: create
+  datasource:
+    url: jdbc:postgresql://localhost:5432/taskX?useSSL=true&serverTimezone=UTC
+    username: bestuser
+    password: bestuser
+    driver-class-name: org.postgresql.Driver

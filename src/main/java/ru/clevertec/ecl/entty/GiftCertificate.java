@@ -31,9 +31,11 @@ public class GiftCertificate {
     @Column(name = "duration")
     private int duration;
 
+    @EqualsAndHashCode.Exclude
     @Column(name = "create_date")
     private LocalDateTime createDate;
 
+    @EqualsAndHashCode.Exclude
     @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;
 

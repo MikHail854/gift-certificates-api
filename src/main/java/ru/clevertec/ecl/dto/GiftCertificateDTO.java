@@ -1,10 +1,7 @@
 package ru.clevertec.ecl.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,7 +18,9 @@ public class GiftCertificateDTO {
     private String description;
     private Float price;
     private Integer duration;
+    @EqualsAndHashCode.Exclude
     private LocalDateTime createDate;
+    @EqualsAndHashCode.Exclude
     private LocalDateTime lastUpdateDate;
 
     private List<TagDTO> tags;

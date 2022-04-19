@@ -3,100 +3,111 @@ package ru.clevertec.ecl.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.ecl.dao.GiftCertificateRepository;
 import ru.clevertec.ecl.dao.TagRepository;
 import ru.clevertec.ecl.dto.GiftCertificateDTO;
 import ru.clevertec.ecl.dto.TagDTO;
 import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.entty.Tag;
-import ru.clevertec.ecl.mapper.GiftCertificateMapper;
-import ru.clevertec.ecl.mapper.TagMapper;
+import ru.clevertec.ecl.mapper.Mapper;
 import ru.clevertec.ecl.service.GiftCertificateService;
 
+import javax.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static ru.clevertec.ecl.constants.Constants.EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private final GiftCertificateRepository giftCertificateRepository;
-    private final GiftCertificateMapper giftCertificateMapper;
     private final TagRepository tagRepository;
-    private final TagMapper tagMapper;
+    private final Mapper mapper;
 
 
     @Override
-    public List<GiftCertificateDTO> findAll(String tagName) {
-        return giftCertificateMapper.createGiftCertificateList(giftCertificateRepository.findAll());
-
+    public List<GiftCertificateDTO> findAll() {
+        return giftCertificateRepository.findAll().stream().map(mapper::giftCertificateToGiftCertificateDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public GiftCertificateDTO findById(int id) {
-        return giftCertificateMapper.createGiftCertificate(giftCertificateRepository.findById(id).orElse(null));
+        return giftCertificateRepository.findById(id).map(mapper::giftCertificateToGiftCertificateDTO)
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, id)));
     }
 
     @Override
-    public GiftCertificateDTO findGiftCertificateByTagName(String tagName) {
-        final TagDTO tagByName = tagMapper.createTag(tagRepository.findTagByName(tagName));
-        if (Objects.nonNull(tagByName)) {
-            return giftCertificateMapper.createGiftCertificate(giftCertificateRepository.findByTagsName(tagName));
-        }
-        return null;
+    public List<GiftCertificateDTO> findGiftCertificateByTagName(String tagName) {
+        final Optional<TagDTO> tagDTO = tagRepository.findTagByName(tagName).map(mapper::tagToTagDTO);
+        if (tagDTO.isPresent())
+            return giftCertificateRepository.findByTagsName(tagName).stream()
+                    .map(mapper::giftCertificateToGiftCertificateDTO)
+                    .collect(Collectors.toList());
+        throw new IllegalArgumentException();
     }
 
     @Override
     public List<GiftCertificateDTO> findGiftCertificateByDescription(String description) {
-        return giftCertificateMapper.createGiftCertificateList(giftCertificateRepository.findAllByDescription(description));
+        return giftCertificateRepository.findByDescription(description).stream()
+                .map(mapper::giftCertificateToGiftCertificateDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public GiftCertificateDTO save(GiftCertificate giftCertificate) {
-
         if (giftCertificateRepository.findById(giftCertificate.getId()).isPresent()) {
             final List<Tag> tags = giftCertificateRepository.findById(giftCertificate.getId()).get().getTags();
             giftCertificate.getTags().addAll(tags);
         }
-
-        return giftCertificateMapper.createGiftCertificate(giftCertificateRepository.save(giftCertificate));
-
+        giftCertificate.setCreateDate(LocalDateTime.now());
+        giftCertificate.setLastUpdateDate(LocalDateTime.now());
+        return mapper.giftCertificateToGiftCertificateDTO(giftCertificateRepository.save(giftCertificate));
     }
 
     @Override
+    @Transactional
     public GiftCertificateDTO update(int id, GiftCertificateDTO giftCertificateDTO) {
-        final GiftCertificate giftCertificateFormDB = giftCertificateRepository.findById(id).orElse(null);
-        GiftCertificateDTO saved = null;
-        if (giftCertificateFormDB != null) {
-            if (giftCertificateDTO.getName() != null) {
-                giftCertificateFormDB.setName(giftCertificateDTO.getName());
-            }
-            if (giftCertificateDTO.getDescription() != null) {
-                giftCertificateFormDB.setDescription(giftCertificateDTO.getDescription());
-            }
-            if (giftCertificateDTO.getPrice() != 0) {
-                giftCertificateFormDB.setPrice(giftCertificateDTO.getPrice());
-            }
-            if (giftCertificateDTO.getDuration() != 0) {
-                giftCertificateFormDB.setDuration(giftCertificateDTO.getDuration());
-            }
-            if (giftCertificateDTO.getCreateDate() != null) {
-                giftCertificateFormDB.setCreateDate(giftCertificateDTO.getCreateDate());
-            }
-            if (giftCertificateDTO.getLastUpdateDate() != null) {
-                giftCertificateFormDB.setLastUpdateDate(giftCertificateDTO.getLastUpdateDate());
-            }
-
-            saved = giftCertificateMapper.createGiftCertificate(giftCertificateRepository.save(giftCertificateFormDB));
-        }
-        return saved;
+        return giftCertificateRepository.findById(id)
+                .map(giftCertificate -> updateGiftCertificateFromGiftCertificateDTO(giftCertificate, giftCertificateDTO))
+                .map(mapper::giftCertificateToGiftCertificateDTO)
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, id)));
     }
 
     @Override
+    @Transactional
     public void delete(int id) {
         giftCertificateRepository.deleteById(id);
     }
 
+    private GiftCertificate updateGiftCertificateFromGiftCertificateDTO(GiftCertificate certificate, GiftCertificateDTO dto) {
+        if (Objects.nonNull(dto.getName())) {
+            certificate.setName(dto.getName());
+        }
+        if (Objects.nonNull(dto.getDescription())) {
+            certificate.setDescription(dto.getDescription());
+        }
+        if (Objects.nonNull(dto.getPrice())) {
+            certificate.setPrice(dto.getPrice());
+        }
+        if (Objects.nonNull(dto.getDuration())) {
+            certificate.setDuration(dto.getDuration());
+        }
+        if (Objects.nonNull(dto.getCreateDate())) {
+            certificate.setCreateDate(dto.getCreateDate());
+        }
+
+        certificate.setLastUpdateDate(LocalDateTime.now());
+        return certificate;
+    }
 
 }

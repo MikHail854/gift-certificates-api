@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface GiftCertificateService {
 
-    List<GiftCertificateDTO> findAll(String tagName);
+    List<GiftCertificateDTO> findAll();
 
     GiftCertificateDTO findById(int id);
 
@@ -17,7 +17,7 @@ public interface GiftCertificateService {
 
     void delete(int id);
 
-    GiftCertificateDTO findGiftCertificateByTagName(String tagName);
+    List<GiftCertificateDTO> findGiftCertificateByTagName(String tagName);
 
     List<GiftCertificateDTO> findGiftCertificateByDescription(String description);
 

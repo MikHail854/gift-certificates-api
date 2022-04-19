@@ -1,10 +1,9 @@
 package ru.clevertec.ecl.entty;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -33,16 +32,16 @@ public class GiftCertificate {
     private int duration;
 
     @Column(name = "create_date")
-    private Date createDate;
+    private LocalDateTime createDate;
 
     @Column(name = "last_update_date")
-    private Date lastUpdateDate;
+    private LocalDateTime lastUpdateDate;
 
 
     /**
      * Список тегов подарочного сертииката {@link Tag}.
      */
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
             name = "gift_certificate_tags"
             , joinColumns = @JoinColumn(name = "id_gift_certificate")

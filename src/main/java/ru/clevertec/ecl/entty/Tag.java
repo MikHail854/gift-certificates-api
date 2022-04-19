@@ -1,6 +1,5 @@
 package ru.clevertec.ecl.entty;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import javax.persistence.*;
@@ -26,7 +25,7 @@ public class Tag {
     /**
      * Список подарочных сертификатов тега {@link GiftCertificate}.
      */
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "tags")
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "tags", fetch = FetchType.EAGER)
     private List<GiftCertificate> giftCertificates;
 
 }

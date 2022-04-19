@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 @Builder
@@ -19,8 +18,5 @@ public class TagDTO {
     private int id;
     private String name;
     private List<GiftCertificateDTO> giftCertificates;
-
-
-    private Map<String, Object> map;
 
 }

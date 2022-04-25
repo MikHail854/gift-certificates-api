@@ -45,9 +45,9 @@ public class GiftCertificate {
      */
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
-            name = "gift_certificate_tags"
-            , joinColumns = @JoinColumn(name = "id_gift_certificate")
-            , inverseJoinColumns = @JoinColumn(name = "id_tag")
+            name = "gift_certificate_tag"
+            , joinColumns = @JoinColumn(name = "gift_certificate_id")
+            , inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private List<Tag> tags;
 

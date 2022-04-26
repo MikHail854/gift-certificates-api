@@ -13,7 +13,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GiftCertificateDTO {
 
-    private int id;
+    private Integer id;
     private String name;
     private String description;
     private Float price;

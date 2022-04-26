@@ -15,7 +15,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TagDTO {
 
-    private int id;
+    private Integer id;
     private String name;
     private List<GiftCertificateDTO> giftCertificates;
 

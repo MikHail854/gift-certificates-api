@@ -1,13 +1,16 @@
 package ru.clevertec.ecl.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.dto.GiftCertificateDTO;
+import ru.clevertec.ecl.dto.GiftCertificateFilter;
 import ru.clevertec.ecl.entty.GiftCertificate;
 
 import java.util.List;
 
 public interface GiftCertificateService {
 
-    List<GiftCertificateDTO> findAll();
+    Page<GiftCertificateDTO> findAll(GiftCertificateFilter filter, Pageable pageable);
 
     GiftCertificateDTO findById(int id);
 
@@ -18,7 +21,5 @@ public interface GiftCertificateService {
     void delete(int id);
 
     List<GiftCertificateDTO> findGiftCertificateByTagName(String tagName);
-
-    List<GiftCertificateDTO> findGiftCertificateByDescription(String description);
 
 }

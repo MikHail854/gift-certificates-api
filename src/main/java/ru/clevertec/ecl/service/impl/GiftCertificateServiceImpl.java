@@ -2,14 +2,18 @@ package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.ecl.dao.GiftCertificateRepository;
 import ru.clevertec.ecl.dao.TagRepository;
 import ru.clevertec.ecl.dto.GiftCertificateDTO;
+import ru.clevertec.ecl.dto.GiftCertificateFilter;
 import ru.clevertec.ecl.dto.TagDTO;
 import ru.clevertec.ecl.entty.GiftCertificate;
-import ru.clevertec.ecl.entty.Tag;
 import ru.clevertec.ecl.mapper.Mapper;
 import ru.clevertec.ecl.service.GiftCertificateService;
 
@@ -34,9 +38,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
 
     @Override
-    public List<GiftCertificateDTO> findAll() {
-        return giftCertificateRepository.findAll().stream().map(mapper::giftCertificateToGiftCertificateDTO)
-                .collect(Collectors.toList());
+    public Page<GiftCertificateDTO> findAll(GiftCertificateFilter filter, Pageable pageable) {
+        ExampleMatcher matcher = ExampleMatcher.matchingAll()
+                .withMatcher("name", match -> match.contains().ignoreCase())
+                .withMatcher("description", match -> match.contains().ignoreCase());
+        return giftCertificateRepository.findAll(
+                Example.of(mapper.giftCertificateFilterToGiftCertificate(filter), matcher), pageable)
+                .map(mapper::giftCertificateToGiftCertificateDTO);
     }
 
     @Override
@@ -47,7 +55,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public List<GiftCertificateDTO> findGiftCertificateByTagName(String tagName) {
-        final Optional<TagDTO> tagDTO = tagRepository.findTagByName(tagName).map(mapper::tagToTagDTO);
+        final Optional<TagDTO> tagDTO = tagRepository.findByNameIgnoreCase(tagName).map(mapper::tagToTagDTO);
         if (tagDTO.isPresent())
             return giftCertificateRepository.findByTagsName(tagName).stream()
                     .map(mapper::giftCertificateToGiftCertificateDTO)
@@ -56,18 +64,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public List<GiftCertificateDTO> findGiftCertificateByDescription(String description) {
-        return giftCertificateRepository.findByDescription(description).stream()
-                .map(mapper::giftCertificateToGiftCertificateDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     @Transactional
     public GiftCertificateDTO save(GiftCertificate giftCertificate) {
-        if (giftCertificateRepository.findById(giftCertificate.getId()).isPresent()) {
-            final List<Tag> tags = giftCertificateRepository.findById(giftCertificate.getId()).get().getTags();
-            giftCertificate.getTags().addAll(tags);
+        if (Objects.nonNull(giftCertificate.getId()) && giftCertificateRepository.findById(giftCertificate.getId()).isPresent()) {
+            final GiftCertificate giftCertificateFromDB = mapper.giftCertificateDTOToGiftCertificate(findById(giftCertificate.getId()));
+            giftCertificate.getTags().addAll(giftCertificateFromDB.getTags());
         }
         giftCertificate.setCreateDate(LocalDateTime.now());
         giftCertificate.setLastUpdateDate(LocalDateTime.now());

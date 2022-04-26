@@ -2,6 +2,7 @@ package ru.clevertec.ecl.mapper;
 
 import org.mapstruct.Mapping;
 import ru.clevertec.ecl.dto.GiftCertificateDTO;
+import ru.clevertec.ecl.dto.GiftCertificateFilter;
 import ru.clevertec.ecl.dto.TagDTO;
 import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.entty.Tag;
@@ -19,5 +20,11 @@ public interface Mapper {
     GiftCertificateDTO giftCertificateToGiftCertificateDTO(GiftCertificate giftCertificate);
 
     GiftCertificate giftCertificateDTOToGiftCertificate(GiftCertificateDTO giftCertificateDTO);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "tags", ignore = true)
+    @Mapping(target = "createDate", ignore = true)
+    @Mapping(target = "lastUpdateDate", ignore = true)
+    GiftCertificate giftCertificateFilterToGiftCertificate(GiftCertificateFilter filter);
 
 }

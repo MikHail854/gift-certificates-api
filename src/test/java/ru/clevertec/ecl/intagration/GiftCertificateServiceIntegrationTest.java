@@ -4,8 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.TestConstructor;
 import ru.clevertec.ecl.dto.GiftCertificateDTO;
+import ru.clevertec.ecl.dto.GiftCertificateFilter;
 import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.entty.Tag;
 import ru.clevertec.ecl.service.GiftCertificateService;
@@ -54,28 +57,55 @@ public class GiftCertificateServiceIntegrationTest implements BaseIntegrationTes
     }
 
     @Test
-    public void testFindGiftCertificateByDescription() {
-        final List<GiftCertificateDTO> giftCertificateByDescription = giftCertificateService.findGiftCertificateByDescription("escript");
+    public void testFindAllWithPageSizeMoreThanContentAndSearchByPartOfNameAndAscendingSortByName() {
+        GiftCertificateFilter filter = GiftCertificateFilter.builder()
+                .name("na")
+                .build();
+
+        final Pageable pageable = getPageable(5, 0, Sort.by("name").ascending());
+        final List<GiftCertificateDTO> content = giftCertificateService.findAll(filter, pageable).getContent();
         assertAll(
-                () -> assertEquals(3, giftCertificateByDescription.size()),
-                () -> assertEquals(1, giftCertificateByDescription.get(0).getId()),
-                () -> assertEquals(2, giftCertificateByDescription.get(1).getId()),
-                () -> assertEquals(3, giftCertificateByDescription.get(2).getId())
+                () -> assertEquals(3, content.size()),
+                () -> assertEquals("name1", content.get(0).getName()),
+                () -> assertEquals("name3", content.get(content.size() - 1).getName())
         );
     }
 
     @Test
-    @DisplayName("an empty collection will be returned if the gift certificate is not found by description")
-    public void testFindGiftCertificateByDescriptionReturnsAnEmptyCollection() {
-        final List<GiftCertificateDTO> giftCertificateByDescription = giftCertificateService.findGiftCertificateByDescription("someDescription");
-        assertEquals(0, giftCertificateByDescription.size());
+    public void testFindAllWithPageSizeSmallThanContentAndSearchByPartOfNameAndAscendingSortByName() {
+        GiftCertificateFilter filter = GiftCertificateFilter.builder()
+                .name("na")
+                .build();
+
+        final Pageable pageable = getPageable(1, 0, Sort.by("name").ascending());
+        final List<GiftCertificateDTO> content = giftCertificateService.findAll(filter, pageable).getContent();
+        assertAll(
+                () -> assertEquals(1, content.size()),
+                () -> assertEquals("name1", content.get(0).getName())
+        );
     }
 
     @Test
+    public void testFindAllWithPageSizeMoreThanContentAndSearchByPartOfDescriptionAndDescendingSortByName() {
+
+        GiftCertificateFilter filter = GiftCertificateFilter.builder()
+                .description("scr")
+                .build();
+
+        final Pageable pageable = getPageable(5, 0, Sort.by("name").descending());
+        final List<GiftCertificateDTO> content = giftCertificateService.findAll(filter, pageable).getContent();
+        assertAll(
+                () -> assertEquals(3, content.size()),
+                () -> assertEquals("name3", content.get(0).getName()),
+                () -> assertEquals("name1", content.get(content.size() - 1).getName())
+        );
+    }
+
+        @Test
     @DisplayName("the gift certificate without tag will be found if it is saved in the table")
     public void testSaveNewGiftCertificateWithoutTag() {
-        final GiftCertificate giftCertificate = createGiftCertificateObject();
-        final GiftCertificateDTO saved = giftCertificateService.save(giftCertificate);
+            final GiftCertificate giftCertificate = createGiftCertificateObject();
+            final GiftCertificateDTO saved = giftCertificateService.save(giftCertificate);
         assertDoesNotThrow(() -> giftCertificateService.findById(saved.getId()));
     }
 
@@ -83,6 +113,7 @@ public class GiftCertificateServiceIntegrationTest implements BaseIntegrationTes
     @DisplayName("the gift certificate with tag will be found if it is saved in the table")
     public void testSaveNewGiftCertificateWithTag() {
         final GiftCertificate giftCertificate = createGiftCertificateObject();
+        giftCertificate.setId(100);
         giftCertificate.setTags(new ArrayList<Tag>() {{
             add(Tag.builder()
                     .name("someNameTag")
@@ -148,6 +179,56 @@ public class GiftCertificateServiceIntegrationTest implements BaseIntegrationTes
                 .createDate(LocalDateTime.now())
                 .lastUpdateDate(LocalDateTime.now())
                 .build();
+    }
+
+
+    private Pageable getPageable(int size, int page, Sort sort) {
+        return new Pageable() {
+            @Override
+            public int getPageNumber() {
+                return page;
+            }
+
+            @Override
+            public int getPageSize() {
+                return size;
+            }
+
+            @Override
+            public long getOffset() {
+                return 0;
+            }
+
+            @Override
+            public Sort getSort() {
+                return sort;
+            }
+
+            @Override
+            public Pageable next() {
+                return null;
+            }
+
+            @Override
+            public Pageable previousOrFirst() {
+                return null;
+            }
+
+            @Override
+            public Pageable first() {
+                return null;
+            }
+
+            @Override
+            public Pageable withPage(int pageNumber) {
+                return null;
+            }
+
+            @Override
+            public boolean hasPrevious() {
+                return false;
+            }
+        };
     }
 
 }

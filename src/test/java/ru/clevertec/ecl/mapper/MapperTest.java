@@ -3,6 +3,7 @@ package ru.clevertec.ecl.mapper;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import ru.clevertec.ecl.dto.GiftCertificateDTO;
+import ru.clevertec.ecl.dto.GiftCertificateFilter;
 import ru.clevertec.ecl.dto.TagDTO;
 import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.entty.Tag;
@@ -99,7 +100,7 @@ public class MapperTest {
         final GiftCertificate giftCertificateFromMapper = mapper.giftCertificateDTOToGiftCertificate(giftCertificateDTO);
 
         final GiftCertificate giftCertificate = createGiftCertificateObject();
-        giftCertificate.setTags(new ArrayList<Tag>(){{
+        giftCertificate.setTags(new ArrayList<Tag>() {{
             add(createTagObject());
         }});
 
@@ -116,7 +117,7 @@ public class MapperTest {
 
         final TagDTO tagDTOFromMapper = mapper.tagToTagDTO(tag);
         TagDTO tagDTO = createTagDTOObject();
-        tagDTO.setGiftCertificates(new ArrayList<GiftCertificateDTO>(){{
+        tagDTO.setGiftCertificates(new ArrayList<GiftCertificateDTO>() {{
             add(createGiftCertificateDTOObject());
         }});
 
@@ -132,11 +133,24 @@ public class MapperTest {
 
         final Tag tagFromMapper = mapper.tagDTOToTag(tagDTO);
         Tag tag = createTagObject();
-        tag.setGiftCertificates(new ArrayList<GiftCertificate>(){{
+        tag.setGiftCertificates(new ArrayList<GiftCertificate>() {{
             add(createGiftCertificateObject());
         }});
 
         assertNotEquals(tag, tagFromMapper);
+    }
+
+    @Test
+    public void testGiftCertificateFilterToGiftCertificate() {
+        final GiftCertificateFilter giftCertificateFilter = createGiftCertificateFilterObject();
+        final GiftCertificate giftCertificateFromMapper = mapper.giftCertificateFilterToGiftCertificate(giftCertificateFilter);
+
+        GiftCertificate giftCertificate = GiftCertificate.builder()
+                .name("na")
+                .description("script")
+                .build();
+
+        assertEquals(giftCertificate, giftCertificateFromMapper);
     }
 
 
@@ -175,6 +189,13 @@ public class MapperTest {
                 .duration(3)
                 .createDate(LocalDateTime.now())
                 .lastUpdateDate(LocalDateTime.now())
+                .build();
+    }
+
+    private GiftCertificateFilter createGiftCertificateFilterObject() {
+        return GiftCertificateFilter.builder()
+                .name("na")
+                .description("script")
                 .build();
     }
 

@@ -15,7 +15,6 @@ import javax.persistence.EntityNotFoundException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,8 +35,8 @@ public class TagServiceImplTest {
         final TagDTO tagDTO = createTagDTOObject();
         tagDTO.setId(1);
 
-        doReturn(Optional.of(tag)).when(tagRepository).findById(tag.getId());
-        doReturn(tagDTO).when(mapper).tagToTagDTO(tag);
+        when(tagRepository.findById(tag.getId())).thenReturn(Optional.of(tag));
+        when(mapper.tagToTagDTO(tag)).thenReturn(tagDTO);
 
         assertEquals(tagDTO, tagService.findById(tag.getId()));
     }
@@ -45,7 +44,7 @@ public class TagServiceImplTest {
 
     @Test
     public void testFindByIdThrowsEntityNotFoundException() {
-        doReturn(Optional.empty()).when(tagRepository).findById(1);
+        when(tagRepository.findById(1)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> tagService.findById(1));
     }

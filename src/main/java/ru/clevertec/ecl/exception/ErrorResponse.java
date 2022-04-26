@@ -12,7 +12,7 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ErrorResponse {
     Date timestamp;
-    int status;
+    Integer status;
     String error;
     String message;
     String path;

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.clevertec.ecl.constants.Constants;
 import ru.clevertec.ecl.exception.ErrorResponse;
 import ru.clevertec.ecl.utils.MessageUtil;
 
@@ -27,25 +28,25 @@ public class RestExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<?> handlerEntityNotFoundException(HttpServletRequest request, EntityNotFoundException e) {
         log.error(e.getMessage(), e);
-        return createResponseEntity(request, HttpStatus.BAD_REQUEST, "handlerEntityNotFoundException", e.getMessage());
+        return createResponseEntity(request, Constants.ERROR_CODE_ENTITY_NOT_FOUND_EXCEPTION, "handlerEntityNotFoundException", e.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> handlerIllegalArgumentException(HttpServletRequest request, IllegalArgumentException e) {
         log.error(e.getMessage(), e);
-        return createResponseEntity(request, HttpStatus.BAD_REQUEST, "handlerIllegalArgumentException", e.getMessage());
+        return createResponseEntity(request, Constants.ERROR_CODE_ILLEGAL_ARGUMENT_EXCEPTION, "handlerIllegalArgumentException", e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handlerMethodArgumentNotValidException(HttpServletRequest request, MethodArgumentNotValidException e) {
         log.error(e.getMessage(), e);
-        return createResponseEntity(request, HttpStatus.BAD_REQUEST, "handlerMethodArgumentNotValidException", e.getMessage());
+        return createResponseEntity(request, Constants.ERROR_CODE_METHOD_ARGUMENT_NOT_VALID_EXCEPTION, "handlerMethodArgumentNotValidException", e.getMessage());
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<?> handlerDataIntegrityViolationException(HttpServletRequest request, DataIntegrityViolationException e) {
         log.error(e.getMessage(), e);
-        return createResponseEntity(request, HttpStatus.BAD_REQUEST, "handlerDataIntegrityViolationException", e.getMessage());
+        return createResponseEntity(request, Constants.ERROR_CODE_DATA_INTEGRITY_VIOLATION_EXCEPTION, "handlerDataIntegrityViolationException", e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
@@ -61,6 +62,17 @@ public class RestExceptionHandler {
                         .message(Objects.nonNull(code) ? messageUtil.getMessage(code, objects) : String.valueOf(objects[0]))
                         .error(status.getReasonPhrase())
                         .status(status.value())
+                        .timestamp(new Date())
+                        .build());
+    }
+
+    private ResponseEntity<?> createResponseEntity(HttpServletRequest request, int status, String code, Object... objects) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.builder()
+                        .path(request.getRequestURI())
+                        .message(Objects.nonNull(code) ? messageUtil.getMessage(code, objects) : String.valueOf(objects[0]))
+                        .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                        .status(status)
                         .timestamp(new Date())
                         .build());
     }

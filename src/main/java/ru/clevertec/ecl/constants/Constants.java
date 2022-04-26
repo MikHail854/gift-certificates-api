@@ -8,4 +8,9 @@ public class Constants {
     public static final String LOG_EXCEPTION_MESSAGE_FORMAT = "Exception in class: {} --- [{}]";
     public static final Locale LOCALE = new Locale("ru");
 
+    public static final int ERROR_CODE_ENTITY_NOT_FOUND_EXCEPTION = 40401;
+    public static final int ERROR_CODE_ILLEGAL_ARGUMENT_EXCEPTION = 40402;
+    public static final int ERROR_CODE_METHOD_ARGUMENT_NOT_VALID_EXCEPTION = 40403;
+    public static final int ERROR_CODE_DATA_INTEGRITY_VIOLATION_EXCEPTION = 40404;
+
 }

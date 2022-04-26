@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.ecl.dao.TagRepository;
 import ru.clevertec.ecl.dto.TagDTO;
-import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.entty.Tag;
 import ru.clevertec.ecl.mapper.Mapper;
 import ru.clevertec.ecl.service.TagService;
@@ -33,32 +32,41 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDTO findById(int id) {
-        return tagRepository.findById(id).map(mapper::tagToTagDTO)
+        final TagDTO dto = tagRepository.findById(id).map(mapper::tagToTagDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, id)));
+        log.info("found tag - {}", dto);
+        return dto;
     }
 
     @Override
     @Transactional
     public TagDTO save(Tag tag) {
-        if (tagRepository.findById(tag.getId()).isPresent()) {
-            final List<GiftCertificate> giftCertificates = tagRepository.findById(tag.getId()).get().getGiftCertificates();
-            tag.getGiftCertificates().addAll(giftCertificates);
+        log.info("tag to save to database - {}", tag);
+        if (Objects.nonNull(tag.getId()) && tagRepository.findById(tag.getId()).isPresent()) {
+            final Tag tagFromDB = mapper.tagDTOToTag(findById(tag.getId()));
+            tag.getGiftCertificates().addAll(tagFromDB.getGiftCertificates());
         }
-        return mapper.tagToTagDTO(tagRepository.save(tag));
+        final TagDTO saved = mapper.tagToTagDTO(tagRepository.save(tag));
+        log.info("successful saving of the tag in the database - {}", saved);
+        return saved;
     }
 
     @Override
     public TagDTO update(int id, TagDTO tagDTO) {
-        return tagRepository.findById(id)
+        log.info("tag for updating in the database - {}", tagDTO);
+        final TagDTO updated = tagRepository.findById(id)
                 .map(tag -> updateTagFromTagDTO(tag, tagDTO))
                 .map(mapper::tagToTagDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, id)));
+        log.info("successful update of the tag in the database - {}",updated);
+        return updated;
     }
 
 
     @Override
     public void delete(int id) {
         tagRepository.deleteById(id);
+        log.info("tag with id = {} deleted successfully", id);
     }
 
     private Tag updateTagFromTagDTO(Tag tag, TagDTO dto) {

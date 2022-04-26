@@ -49,45 +49,57 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public GiftCertificateDTO findById(int id) {
-        return giftCertificateRepository.findById(id).map(mapper::giftCertificateToGiftCertificateDTO)
+        final GiftCertificateDTO dto = giftCertificateRepository.findById(id).map(mapper::giftCertificateToGiftCertificateDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, id)));
+        log.info("found giftCertificate - {}", dto);
+        return dto;
     }
 
     @Override
     public List<GiftCertificateDTO> findGiftCertificateByTagName(String tagName) {
         final Optional<TagDTO> tagDTO = tagRepository.findByNameIgnoreCase(tagName).map(mapper::tagToTagDTO);
-        if (tagDTO.isPresent())
-            return giftCertificateRepository.findByTagsName(tagName).stream()
+        if (tagDTO.isPresent()) {
+            final List<GiftCertificateDTO> collect = giftCertificateRepository.findByTagsName(tagName).stream()
                     .map(mapper::giftCertificateToGiftCertificateDTO)
                     .collect(Collectors.toList());
+            log.info("Found list of gift certificates with tag name = {}. Gift certificate list - {}", tagName, collect);
+            return collect;
+        }
         throw new IllegalArgumentException();
     }
 
     @Override
     @Transactional
     public GiftCertificateDTO save(GiftCertificate giftCertificate) {
+        log.info("gift certificate to save to database - {}", giftCertificate);
         if (Objects.nonNull(giftCertificate.getId()) && giftCertificateRepository.findById(giftCertificate.getId()).isPresent()) {
             final GiftCertificate giftCertificateFromDB = mapper.giftCertificateDTOToGiftCertificate(findById(giftCertificate.getId()));
             giftCertificate.getTags().addAll(giftCertificateFromDB.getTags());
         }
         giftCertificate.setCreateDate(LocalDateTime.now());
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
-        return mapper.giftCertificateToGiftCertificateDTO(giftCertificateRepository.save(giftCertificate));
+        final GiftCertificateDTO saved = mapper.giftCertificateToGiftCertificateDTO(giftCertificateRepository.save(giftCertificate));
+        log.info("successful saving of the gift certificate in the database - {}", saved);
+        return saved;
     }
 
     @Override
     @Transactional
     public GiftCertificateDTO update(int id, GiftCertificateDTO giftCertificateDTO) {
-        return giftCertificateRepository.findById(id)
+        log.info("gift certificate for updating in the database - {}", giftCertificateDTO);
+        final GiftCertificateDTO updated = giftCertificateRepository.findById(id)
                 .map(giftCertificate -> updateGiftCertificateFromGiftCertificateDTO(giftCertificate, giftCertificateDTO))
                 .map(mapper::giftCertificateToGiftCertificateDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, id)));
+        log.info("successful update of the gift certificate in the database - {}", updated);
+        return updated;
     }
 
     @Override
     @Transactional
     public void delete(int id) {
         giftCertificateRepository.deleteById(id);
+        log.info("gift certificate with id = {} deleted successfully", id);
     }
 
     private GiftCertificate updateGiftCertificateFromGiftCertificateDTO(GiftCertificate certificate, GiftCertificateDTO dto) {

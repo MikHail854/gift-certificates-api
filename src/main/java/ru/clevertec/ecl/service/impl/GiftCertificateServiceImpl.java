@@ -12,6 +12,7 @@ import ru.clevertec.ecl.dao.GiftCertificateRepository;
 import ru.clevertec.ecl.dao.TagRepository;
 import ru.clevertec.ecl.dto.GiftCertificateDTO;
 import ru.clevertec.ecl.dto.GiftCertificateFilter;
+import ru.clevertec.ecl.dto.GiftCertificatePriceAndDurationDTO;
 import ru.clevertec.ecl.dto.TagDTO;
 import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.mapper.Mapper;
@@ -85,10 +86,23 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     @Transactional
-    public GiftCertificateDTO update(int id, GiftCertificateDTO giftCertificateDTO) {
-        log.info("gift certificate for updating in the database - {}", giftCertificateDTO);
+    public GiftCertificateDTO update(int id, GiftCertificateDTO dto) {
+        log.info("gift certificate for updating in the database - {}", dto);
         final GiftCertificateDTO updated = giftCertificateRepository.findById(id)
-                .map(giftCertificate -> updateGiftCertificateFromGiftCertificateDTO(giftCertificate, giftCertificateDTO))
+                .map(giftCertificate -> updateGiftCertificateFromGiftCertificateDTO(giftCertificate, dto))
+                .map(giftCertificateRepository::saveAndFlush)
+                .map(mapper::giftCertificateToGiftCertificateDTO)
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, id)));
+        log.info("successful update of the gift certificate in the database - {}", updated);
+        return updated;
+    }
+
+    @Override
+    public GiftCertificateDTO update(int id, GiftCertificatePriceAndDurationDTO dto) {
+        log.info("gift certificate for updating in the database - {}", dto);
+        final GiftCertificateDTO updated = giftCertificateRepository.findById(id)
+                .map(giftCertificate -> updateGiftCertificateFromGiftCertificatePriceAndDurationDTO(giftCertificate, dto))
+                .map(giftCertificateRepository::saveAndFlush)
                 .map(mapper::giftCertificateToGiftCertificateDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, id)));
         log.info("successful update of the gift certificate in the database - {}", updated);
@@ -119,6 +133,17 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             certificate.setCreateDate(dto.getCreateDate());
         }
 
+        certificate.setLastUpdateDate(LocalDateTime.now());
+        return certificate;
+    }
+
+    private GiftCertificate updateGiftCertificateFromGiftCertificatePriceAndDurationDTO(GiftCertificate certificate, GiftCertificatePriceAndDurationDTO dto) {
+        if (Objects.nonNull(dto.getPrice())) {
+            certificate.setPrice(dto.getPrice());
+        }
+        if (Objects.nonNull(dto.getDuration())) {
+            certificate.setDuration(dto.getDuration());
+        }
         certificate.setLastUpdateDate(LocalDateTime.now());
         return certificate;
     }

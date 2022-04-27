@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.clevertec.ecl.dto.GiftCertificateDTO;
 import ru.clevertec.ecl.dto.GiftCertificateFilter;
+import ru.clevertec.ecl.dto.GiftCertificatePriceAndDurationDTO;
 import ru.clevertec.ecl.dto.PageResponse;
 import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.service.GiftCertificateService;
@@ -51,6 +52,10 @@ public class GiftCertificateController {
         return giftCertificateService.update(id, giftCertificate);
     }
 
+    @PatchMapping("/{id}")
+    public GiftCertificateDTO updatePriceAndDuration(@PathVariable("id") int id, @RequestBody GiftCertificatePriceAndDurationDTO giftCertificate){
+        return giftCertificateService.update(id, giftCertificate);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") int id) {

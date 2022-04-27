@@ -98,6 +98,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
+    @Transactional
     public GiftCertificateDTO update(int id, GiftCertificatePriceAndDurationDTO dto) {
         log.info("gift certificate for updating in the database - {}", dto);
         final GiftCertificateDTO updated = giftCertificateRepository.findById(id)

@@ -169,6 +169,7 @@ public class GiftCertificateServiceImplTest {
         final GiftCertificateDTO giftCertificateDTO = createGiftCertificateDTOObject();
 
         when(giftCertificateRepository.findById(id)).thenReturn(Optional.of(giftCertificate));
+        when(giftCertificateRepository.saveAndFlush(giftCertificate)).thenReturn(giftCertificate);
         when(mapper.giftCertificateToGiftCertificateDTO(giftCertificate)).thenReturn(giftCertificateDTO);
 
         assertEquals(giftCertificateDTO, giftCertificateService.update(id, giftCertificateDTO));

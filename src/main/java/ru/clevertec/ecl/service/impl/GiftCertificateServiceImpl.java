@@ -89,6 +89,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         log.info("gift certificate for updating in the database - {}", giftCertificateDTO);
         final GiftCertificateDTO updated = giftCertificateRepository.findById(id)
                 .map(giftCertificate -> updateGiftCertificateFromGiftCertificateDTO(giftCertificate, giftCertificateDTO))
+                .map(giftCertificateRepository::saveAndFlush)
                 .map(mapper::giftCertificateToGiftCertificateDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, id)));
         log.info("successful update of the gift certificate in the database - {}", updated);

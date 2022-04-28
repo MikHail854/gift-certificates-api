@@ -51,7 +51,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public GiftCertificateDTO findById(int id) {
         final GiftCertificateDTO dto = giftCertificateRepository.findById(id).map(mapper::giftCertificateToGiftCertificateDTO)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, id)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "gift certificate",  id)));
         log.info("found giftCertificate - {}", dto);
         return dto;
     }
@@ -92,7 +92,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 .map(giftCertificate -> updateGiftCertificateFromGiftCertificateDTO(giftCertificate, dto))
                 .map(giftCertificateRepository::saveAndFlush)
                 .map(mapper::giftCertificateToGiftCertificateDTO)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, id)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "gift certificate", id)));
         log.info("successful update of the gift certificate in the database - {}", updated);
         return updated;
     }
@@ -105,7 +105,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 .map(giftCertificate -> updateGiftCertificateFromGiftCertificatePriceAndDurationDTO(giftCertificate, dto))
                 .map(giftCertificateRepository::saveAndFlush)
                 .map(mapper::giftCertificateToGiftCertificateDTO)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, id)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "gift certificate",id)));
         log.info("successful update of the gift certificate in the database - {}", updated);
         return updated;
     }

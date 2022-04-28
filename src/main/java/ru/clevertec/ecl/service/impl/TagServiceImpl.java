@@ -20,6 +20,7 @@ import static ru.clevertec.ecl.constants.Constants.EXCEPTION_MESSAGE_ENTITY_NOT_
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
@@ -33,7 +34,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public TagDTO findById(int id) {
         final TagDTO dto = tagRepository.findById(id).map(mapper::tagToTagDTO)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, id)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "tag", id)));
         log.info("found tag - {}", dto);
         return dto;
     }
@@ -52,18 +53,20 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    @Transactional
     public TagDTO update(int id, TagDTO tagDTO) {
         log.info("tag for updating in the database - {}", tagDTO);
         final TagDTO updated = tagRepository.findById(id)
                 .map(tag -> updateTagFromTagDTO(tag, tagDTO))
                 .map(mapper::tagToTagDTO)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, id)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "tag", id)));
         log.info("successful update of the tag in the database - {}",updated);
         return updated;
     }
 
 
     @Override
+    @Transactional
     public void delete(int id) {
         tagRepository.deleteById(id);
         log.info("tag with id = {} deleted successfully", id);

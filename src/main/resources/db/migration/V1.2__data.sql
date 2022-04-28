@@ -36,4 +36,16 @@ INSERT INTO gift_certificate_tag(gift_certificate_id, tag_id)
 VALUES (3, 1);
 
 
+INSERT INTO user_data (first_name, last_name)
+VALUES ('Ivanov', 'Ivan');
+
+INSERT INTO user_data (first_name, last_name)
+VALUES ('Petrov', 'Petr');
+
+INSERT INTO user_data (first_name, last_name)
+VALUES ('Popov', 'Alex');
+
+INSERT INTO user_data (first_name, last_name)
+VALUES ('Morozov', 'Dmitriy');
+
 

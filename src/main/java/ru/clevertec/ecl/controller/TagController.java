@@ -1,7 +1,6 @@
 package ru.clevertec.ecl.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.clevertec.ecl.dto.TagDTO;
@@ -10,10 +9,9 @@ import ru.clevertec.ecl.service.TagService;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/tag")
+@RequestMapping("/tags")
 public class TagController {
 
     private final TagService tagService;

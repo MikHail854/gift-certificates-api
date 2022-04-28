@@ -1,7 +1,6 @@
 package ru.clevertec.ecl.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +15,9 @@ import ru.clevertec.ecl.service.GiftCertificateService;
 import java.util.List;
 
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/gift")
+@RequestMapping("/gifts")
 public class GiftCertificateController {
 
     private final GiftCertificateService giftCertificateService;
@@ -36,7 +34,7 @@ public class GiftCertificateController {
         return giftCertificateService.findById(id);
     }
 
-    @GetMapping("/tag")
+    @GetMapping("/tags")
     public List<GiftCertificateDTO> findByTagName(@RequestParam("tag_name") String tagName){
         return giftCertificateService.findGiftCertificateByTagName(tagName);
     }

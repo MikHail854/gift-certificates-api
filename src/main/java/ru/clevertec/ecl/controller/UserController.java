@@ -18,7 +18,7 @@ public class UserController {
 
     @GetMapping
     @ResponseBody
-    public PageResponse<UserDTO> findAll(Pageable pageable){
+    public PageResponse<UserDTO> find(Pageable pageable){
         final Page<UserDTO> page = userService.findAll(pageable);
         return PageResponse.of(page);
     }

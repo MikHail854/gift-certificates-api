@@ -18,7 +18,6 @@ import javax.persistence.EntityNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static ru.clevertec.ecl.constants.Constants.EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT;
@@ -57,21 +56,23 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDTO> findOrdersByUserId(Integer userId, Integer orderId) {
+    public List<OrderDTO> findOrdersByUserId(Integer userId) {
         if (userRepository.findById(userId).isPresent()) {
-            if (Objects.nonNull(orderId)) {
-                List<OrderDTO> dto = orderRepository.findByIdAndUserId(orderId, userId).stream()
-                        .map(orderMapper::orderToOrderDTO)
-                        .collect(Collectors.toList());
-                log.info("found orders - {}", dto);
-                return dto;
-            } else {
-                final List<OrderDTO> dto = orderRepository.findByUserId(userId).stream()
-                        .map(orderMapper::orderToOrderDTO)
-                        .collect(Collectors.toList());
-                log.info("found orders - {}", dto);
-                return dto;
-            }
+            final List<OrderDTO> dto = orderRepository.findByUserId(userId).stream()
+                    .map(orderMapper::orderToOrderDTO)
+                    .collect(Collectors.toList());
+            log.info("found orders - {}", dto);
+            return dto;
+        }
+        throw new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "user", userId));
+    }
+
+    @Override
+    public OrderDTO findOrderByIdAndUserId(Integer userId, Integer orderId) {
+        if (userRepository.findById(userId).isPresent()) {
+            final OrderDTO dto = orderMapper.orderToOrderDTO(orderRepository.findByIdAndUserId(orderId, userId));
+            log.info("found orders - {}", dto);
+            return dto;
         }
         throw new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "user", userId));
     }

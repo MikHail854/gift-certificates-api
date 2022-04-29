@@ -20,9 +20,14 @@ public class OrderController {
         return orderService.createOrder(userId, certificateId);
     }
 
-    @GetMapping()
-    public List<OrderDTO> findOrdersByUserId(@RequestParam("user_id") Integer userId, @RequestParam(value = "order_id", required = false) Integer orderId) {
-        return orderService.findOrdersByUserId(userId, orderId);
+    @GetMapping
+    public List<OrderDTO> findOrdersByUserId(@RequestParam("user_id") Integer userId) {
+        return orderService.findOrdersByUserId(userId);
+    }
+
+    @GetMapping
+    public OrderDTO findOrderByIdAndUserId(@RequestParam("user_id") Integer userId, @RequestParam(value = "order_id") Integer orderId) {
+        return orderService.findOrderByIdAndUserId(userId, orderId);
     }
 
     @GetMapping("/{id}")

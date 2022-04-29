@@ -42,4 +42,9 @@ public class TagController {
         return ResponseEntity.ok("Tag deleted successfully");
     }
 
+    @GetMapping("/super_tag")
+    public TagDTO getTheMostWidelyUsedTag() {
+        return tagService.findTheMostWidelyUsedTag();
+    }
+
 }

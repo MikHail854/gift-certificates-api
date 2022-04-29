@@ -17,4 +17,6 @@ public interface TagService {
 
     void delete(int id);
 
+    TagDTO findTheMostWidelyUsedTag();
+
 }

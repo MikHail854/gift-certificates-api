@@ -1,21 +1,13 @@
 package ru.clevertec.ecl.mapper;
 
+import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import ru.clevertec.ecl.dto.*;
+import ru.clevertec.ecl.dto.GiftCertificateDTO;
+import ru.clevertec.ecl.dto.GiftCertificateFilter;
 import ru.clevertec.ecl.entty.GiftCertificate;
-import ru.clevertec.ecl.entty.Order;
-import ru.clevertec.ecl.entty.Tag;
-import ru.clevertec.ecl.entty.User;
 
-
-@org.mapstruct.Mapper(componentModel = "spring")
-public interface Mapper {
-
-    @Mapping(target = "giftCertificates", ignore = true)
-    TagDTO tagToTagDTO(Tag tag);
-
-    @Mapping(target = "giftCertificates", ignore = true)
-    Tag tagDTOToTag(TagDTO tagDTO);
+@Mapper(componentModel = "spring")
+public interface GiftCertificateMapper {
 
     GiftCertificateDTO giftCertificateToGiftCertificateDTO(GiftCertificate giftCertificate);
 
@@ -26,10 +18,5 @@ public interface Mapper {
     @Mapping(target = "createDate", ignore = true)
     @Mapping(target = "lastUpdateDate", ignore = true)
     GiftCertificate giftCertificateFilterToGiftCertificate(GiftCertificateFilter filter);
-
-
-    UserDTO userToUserDTO(User user);
-
-    OrderDTO orderToOrderDTO(Order order);
 
 }

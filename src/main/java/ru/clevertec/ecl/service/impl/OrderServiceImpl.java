@@ -11,7 +11,7 @@ import ru.clevertec.ecl.dto.OrderDTO;
 import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.entty.Order;
 import ru.clevertec.ecl.entty.User;
-import ru.clevertec.ecl.mapper.Mapper;
+import ru.clevertec.ecl.mapper.OrderMapper;
 import ru.clevertec.ecl.service.OrderService;
 
 import javax.persistence.EntityNotFoundException;
@@ -32,7 +32,7 @@ public class OrderServiceImpl implements OrderService {
     private final GiftCertificateRepository giftCertificateRepository;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
-    private final Mapper mapper;
+    private final OrderMapper orderMapper;
 
     @Override
     @Transactional
@@ -51,7 +51,7 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderRepository.saveAndFlush(order);
-        final OrderDTO orderDTO = mapper.orderToOrderDTO(order);
+        final OrderDTO orderDTO = orderMapper.orderToOrderDTO(order);
         log.info("create order: {}", orderDTO);
         return orderDTO;
     }
@@ -61,13 +61,13 @@ public class OrderServiceImpl implements OrderService {
         if (userRepository.findById(userId).isPresent()) {
             if (Objects.nonNull(orderId)) {
                 List<OrderDTO> dto = orderRepository.findByIdAndUserId(orderId, userId).stream()
-                        .map(mapper::orderToOrderDTO)
+                        .map(orderMapper::orderToOrderDTO)
                         .collect(Collectors.toList());
                 log.info("found orders - {}", dto);
                 return dto;
             } else {
                 final List<OrderDTO> dto = orderRepository.findByUserId(userId).stream()
-                        .map(mapper::orderToOrderDTO)
+                        .map(orderMapper::orderToOrderDTO)
                         .collect(Collectors.toList());
                 log.info("found orders - {}", dto);
                 return dto;
@@ -78,7 +78,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO findById(int id) {
-        final OrderDTO dto = orderRepository.findById(id).map(mapper::orderToOrderDTO)
+        final OrderDTO dto = orderRepository.findById(id).map(orderMapper::orderToOrderDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "order", id)));
         log.info("found order - {}", dto);
         return dto;

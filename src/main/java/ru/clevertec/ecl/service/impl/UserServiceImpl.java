@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.ecl.dao.UserRepository;
 import ru.clevertec.ecl.dto.UserDTO;
-import ru.clevertec.ecl.mapper.Mapper;
+import ru.clevertec.ecl.mapper.UserMapper;
 import ru.clevertec.ecl.service.UserService;
 
 import javax.persistence.EntityNotFoundException;
@@ -22,16 +22,16 @@ import static ru.clevertec.ecl.constants.Constants.EXCEPTION_MESSAGE_ENTITY_NOT_
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final Mapper mapper;
+    private final UserMapper userMapper;
 
     @Override
     public Page<UserDTO> findAll(Pageable pageable) {
-        return userRepository.findAll(pageable).map(mapper::userToUserDTO);
+        return userRepository.findAll(pageable).map(userMapper::userToUserDTO);
     }
 
     @Override
     public UserDTO findById(int userId) {
-        final UserDTO userDTO = userRepository.findById(userId).map(mapper::userToUserDTO)
+        final UserDTO userDTO = userRepository.findById(userId).map(userMapper::userToUserDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "user", userId)));
         log.info("found user - {}", userDTO);
         return userDTO;

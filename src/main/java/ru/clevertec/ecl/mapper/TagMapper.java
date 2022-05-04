@@ -9,9 +9,9 @@ import ru.clevertec.ecl.entty.Tag;
 public interface TagMapper {
 
     @Mapping(target = "giftCertificates", ignore = true)
-    TagDTO tagToTagDTO(Tag tag);
+    TagDTO toTagDTO(Tag tag);
 
     @Mapping(target = "giftCertificates", ignore = true)
-    Tag tagDTOToTag(TagDTO tagDTO);
+    Tag toTag(TagDTO tagDTO);
 
 }

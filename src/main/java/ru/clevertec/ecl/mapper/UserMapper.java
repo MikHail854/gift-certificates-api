@@ -6,5 +6,5 @@ import ru.clevertec.ecl.entty.User;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    UserDTO userToUserDTO(User user);
+    UserDTO toUserDTO(User user);
 }

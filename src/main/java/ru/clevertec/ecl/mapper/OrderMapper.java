@@ -6,5 +6,5 @@ import ru.clevertec.ecl.entty.Order;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
-    OrderDTO orderToOrderDTO(Order order);
+    OrderDTO toOrderDTO(Order order);
 }

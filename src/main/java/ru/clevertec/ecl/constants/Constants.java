@@ -8,9 +8,9 @@ public class Constants {
     public static final String EXCEPTION_MESSAGE_SOMETHING_WENT_WRONG = "SOMETHING WENT WRONG";
     public static final Locale LOCALE = new Locale("ru");
 
-    public static final int ERROR_CODE_ENTITY_NOT_FOUND_EXCEPTION = 40401;
-    public static final int ERROR_CODE_ILLEGAL_ARGUMENT_EXCEPTION = 40402;
-    public static final int ERROR_CODE_METHOD_ARGUMENT_NOT_VALID_EXCEPTION = 40403;
-    public static final int ERROR_CODE_DATA_INTEGRITY_VIOLATION_EXCEPTION = 40404;
+    public static final int ERROR_CODE_ENTITY_NOT_FOUND_EXCEPTION = 40001;
+    public static final int ERROR_CODE_ILLEGAL_ARGUMENT_EXCEPTION = 40002;
+    public static final int ERROR_CODE_METHOD_ARGUMENT_NOT_VALID_EXCEPTION = 40003;
+    public static final int ERROR_CODE_DATA_INTEGRITY_VIOLATION_EXCEPTION = 40004;
 
 }

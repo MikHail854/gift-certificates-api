@@ -7,6 +7,7 @@ import ru.clevertec.ecl.dto.TagDTO;
 import ru.clevertec.ecl.entty.Tag;
 import ru.clevertec.ecl.service.TagService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -27,12 +28,12 @@ public class TagController {
     }
 
     @PostMapping
-    public TagDTO save(@RequestBody Tag tag) {
+    public TagDTO save(@RequestBody @Valid Tag tag) {
         return tagService.save(tag);
     }
 
     @PutMapping("/{id}")
-    public TagDTO update(@PathVariable("id") int id, @RequestBody TagDTO tag) {
+    public TagDTO update(@PathVariable("id") int id, @RequestBody @Valid TagDTO tag) {
         return tagService.update(id, tag);
     }
 

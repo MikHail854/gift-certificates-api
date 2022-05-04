@@ -1,7 +1,6 @@
 package ru.clevertec.ecl.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +9,7 @@ import ru.clevertec.ecl.dto.*;
 import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.service.GiftCertificateService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 
@@ -38,23 +38,23 @@ public class GiftCertificateController {
     }
 
     @PostMapping
-    public GiftCertificateDTO save(@RequestBody GiftCertificate giftCertificate) {
+    public GiftCertificateDTO save(@RequestBody @Valid GiftCertificate giftCertificate) {
         return giftCertificateService.save(giftCertificate);
     }
 
 
     @PutMapping("/{id}")
-    public GiftCertificateDTO update(@PathVariable("id") int id, @RequestBody GiftCertificateDTO dto) {
+    public GiftCertificateDTO update(@PathVariable("id") int id, @RequestBody @Valid GiftCertificateDTO dto) {
         return giftCertificateService.update(id, dto);
     }
 
     @PatchMapping("/{id}/price")
-    public GiftCertificateDTO updatePrice(@PathVariable("id") int id, @RequestBody GiftCertificatePriceDTO dto){
+    public GiftCertificateDTO updatePrice(@PathVariable("id") int id, @RequestBody @Valid GiftCertificatePriceDTO dto){
         return giftCertificateService.updatePrice(id, dto);
     }
 
     @PatchMapping("/{id}/duration")
-    public GiftCertificateDTO updateDuration(@PathVariable("id") int id, @RequestBody GiftCertificateDurationDTO dto){
+    public GiftCertificateDTO updateDuration(@PathVariable("id") int id, @RequestBody @Valid GiftCertificateDurationDTO dto){
         return giftCertificateService.updateDuration(id, dto);
     }
 

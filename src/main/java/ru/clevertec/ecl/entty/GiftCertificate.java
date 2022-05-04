@@ -3,8 +3,7 @@ package ru.clevertec.ecl.entty;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,9 +20,14 @@ public class GiftCertificate {
     @Column(name = "id")
     private Integer id;
 
+    @NotBlank
+    @Pattern(regexp = "^[-a-zA-Zа-яА-Я]+(\\s+[-a-zA-Zа-яА-Я])*$")
+    @Size(min = 2, max = 25, message = "Name should be between 2 and 25 characters")
     @Column(name = "name")
     private String name;
 
+    @NotBlank
+    @Pattern(regexp = "^[-a-zA-Zа-яА-Я0-9]+(\\s+[-a-zA-Zа-яА-Я0-9])*$")
     @Column(name = "description")
     private String description;
 
@@ -37,12 +41,10 @@ public class GiftCertificate {
     @Column(name = "duration")
     private Integer duration;
 
-    @NotNull
     @EqualsAndHashCode.Exclude
     @Column(name = "create_date")
     private LocalDateTime createDate;
 
-    @NotNull
     @EqualsAndHashCode.Exclude
     @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;

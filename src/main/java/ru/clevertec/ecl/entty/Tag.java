@@ -3,6 +3,8 @@ package ru.clevertec.ecl.entty;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 
 @Data
@@ -18,6 +20,8 @@ public class Tag {
     @Column(name = "id")
     private Integer id;
 
+    @NotBlank
+    @Pattern(regexp = "^[-a-zA-Zа-яА-Я0-9]+(\\s+[-a-zA-Zа-яА-Я0-9])*$")
     @Column(name = "name", unique = true)
     private String name;
 

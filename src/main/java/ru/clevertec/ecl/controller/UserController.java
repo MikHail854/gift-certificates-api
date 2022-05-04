@@ -16,15 +16,27 @@ public class UserController {
 
     private final UserService userService;
 
+    /**
+     * Поиск всех пользователей
+     *
+     * @param pageable постраничный вывод
+     * @return все найденные пользователи
+     */
     @GetMapping
     @ResponseBody
-    public PageResponse<UserDTO> find(Pageable pageable){
+    public PageResponse<UserDTO> find(Pageable pageable) {
         final Page<UserDTO> page = userService.findAll(pageable);
         return PageResponse.of(page);
     }
 
+    /**
+     * Поиск пользователя по id
+     *
+     * @param id уникальный идентификатор пользователя
+     * @return пользователь
+     */
     @GetMapping("/{id}")
-    public UserDTO findById(@PathVariable("id") int id){
+    public UserDTO findById(@PathVariable("id") int id) {
         return userService.findById(id);
     }
 

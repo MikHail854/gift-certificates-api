@@ -18,6 +18,7 @@ import ru.clevertec.ecl.service.GiftCertificateService;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,13 +44,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 .withMatcher("name", match -> match.contains().ignoreCase())
                 .withMatcher("description", match -> match.contains().ignoreCase());
         return giftCertificateRepository.findAll(
-                Example.of(giftCertificateMapper.giftCertificateFilterToGiftCertificate(filter), matcher), pageable)
-                .map(giftCertificateMapper::giftCertificateToGiftCertificateDTO);
+                Example.of(giftCertificateMapper.toGiftCertificate(filter), matcher), pageable)
+                .map(giftCertificateMapper::toGiftCertificateDTO);
     }
 
     @Override
     public GiftCertificateDTO findById(int id) {
-        final GiftCertificateDTO dto = giftCertificateRepository.findById(id).map(giftCertificateMapper::giftCertificateToGiftCertificateDTO)
+        final GiftCertificateDTO dto = giftCertificateRepository.findById(id).map(giftCertificateMapper::toGiftCertificateDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "gift certificate", id)));
         log.info("found giftCertificate - {}", dto);
         return dto;
@@ -57,10 +58,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public List<GiftCertificateDTO> findGiftCertificateByTagName(String tagName) {
-        final Optional<TagDTO> tagDTO = tagRepository.findByNameIgnoreCase(tagName).map(tagMapper::tagToTagDTO);
+        final Optional<TagDTO> tagDTO = tagRepository.findByNameIgnoreCase(tagName).map(tagMapper::toTagDTO);
         if (tagDTO.isPresent()) {
             final List<GiftCertificateDTO> collect = giftCertificateRepository.findByTagsName(tagName).stream()
-                    .map(giftCertificateMapper::giftCertificateToGiftCertificateDTO)
+                    .map(giftCertificateMapper::toGiftCertificateDTO)
                     .collect(Collectors.toList());
             log.info("Found list of gift certificates with tag name = {}. Gift certificate list - {}", tagName, collect);
             return collect;
@@ -73,12 +74,18 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public GiftCertificateDTO save(GiftCertificate giftCertificate) {
         log.info("gift certificate to save to database - {}", giftCertificate);
         if (Objects.nonNull(giftCertificate.getId()) && giftCertificateRepository.findById(giftCertificate.getId()).isPresent()) {
-            final GiftCertificate giftCertificateFromDB = giftCertificateMapper.giftCertificateDTOToGiftCertificate(findById(giftCertificate.getId()));
+            final GiftCertificate giftCertificateFromDB = giftCertificateMapper.toGiftCertificate(findById(giftCertificate.getId()));
+            if (!Objects.nonNull(giftCertificate.getTags())) {
+                giftCertificate.setTags(new ArrayList<>());
+            }
             giftCertificate.getTags().addAll(giftCertificateFromDB.getTags());
+            giftCertificate.setCreateDate(giftCertificateFromDB.getCreateDate());
+
+        } else {
+            giftCertificate.setCreateDate(LocalDateTime.now());
         }
-        giftCertificate.setCreateDate(LocalDateTime.now());
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
-        final GiftCertificateDTO saved = giftCertificateMapper.giftCertificateToGiftCertificateDTO(giftCertificateRepository.save(giftCertificate));
+        final GiftCertificateDTO saved = giftCertificateMapper.toGiftCertificateDTO(giftCertificateRepository.save(giftCertificate));
         log.info("successful saving of the gift certificate in the database - {}", saved);
         return saved;
     }
@@ -90,7 +97,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         final GiftCertificateDTO updated = giftCertificateRepository.findById(id)
                 .map(giftCertificate -> updateGiftCertificateFromGiftCertificateDTO(giftCertificate, dto))
                 .map(giftCertificateRepository::saveAndFlush)
-                .map(giftCertificateMapper::giftCertificateToGiftCertificateDTO)
+                .map(giftCertificateMapper::toGiftCertificateDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "gift certificate", id)));
         log.info("successful update of the gift certificate in the database - {}", updated);
         return updated;
@@ -103,7 +110,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         final GiftCertificateDTO updated = giftCertificateRepository.findById(id)
                 .map(giftCertificate -> updateGiftCertificatePrice(giftCertificate, dto))
                 .map(giftCertificateRepository::saveAndFlush)
-                .map(giftCertificateMapper::giftCertificateToGiftCertificateDTO)
+                .map(giftCertificateMapper::toGiftCertificateDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "gift certificate", id)));
         log.info("successful update of the gift certificate price in the database - {}", updated);
         return updated;
@@ -116,7 +123,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         final GiftCertificateDTO updated = giftCertificateRepository.findById(id)
                 .map(giftCertificate -> updateGiftCertificateDuration(giftCertificate, dto))
                 .map(giftCertificateRepository::saveAndFlush)
-                .map(giftCertificateMapper::giftCertificateToGiftCertificateDTO)
+                .map(giftCertificateMapper::toGiftCertificateDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "gift certificate", id)));
         log.info("successful update of the gift certificate duration in the database - {}", updated);
         return updated;

@@ -50,7 +50,7 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderRepository.saveAndFlush(order);
-        final OrderDTO orderDTO = orderMapper.orderToOrderDTO(order);
+        final OrderDTO orderDTO = orderMapper.toOrderDTO(order);
         log.info("create order: {}", orderDTO);
         return orderDTO;
     }
@@ -59,7 +59,7 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderDTO> findOrdersByUserId(Integer userId) {
         if (userRepository.findById(userId).isPresent()) {
             final List<OrderDTO> dto = orderRepository.findByUserId(userId).stream()
-                    .map(orderMapper::orderToOrderDTO)
+                    .map(orderMapper::toOrderDTO)
                     .collect(Collectors.toList());
             log.info("found orders - {}", dto);
             return dto;
@@ -70,7 +70,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDTO findOrderByIdAndUserId(Integer userId, Integer orderId) {
         if (userRepository.findById(userId).isPresent()) {
-            final OrderDTO dto = orderMapper.orderToOrderDTO(orderRepository.findByIdAndUserId(orderId, userId));
+            final OrderDTO dto = orderMapper.toOrderDTO(orderRepository.findByIdAndUserId(orderId, userId));
             log.info("found orders - {}", dto);
             return dto;
         }
@@ -79,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO findById(int id) {
-        final OrderDTO dto = orderRepository.findById(id).map(orderMapper::orderToOrderDTO)
+        final OrderDTO dto = orderRepository.findById(id).map(orderMapper::toOrderDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "order", id)));
         log.info("found order - {}", dto);
         return dto;

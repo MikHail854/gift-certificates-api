@@ -26,12 +26,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<UserDTO> findAll(Pageable pageable) {
-        return userRepository.findAll(pageable).map(userMapper::userToUserDTO);
+        return userRepository.findAll(pageable).map(userMapper::toUserDTO);
     }
 
     @Override
     public UserDTO findById(int userId) {
-        final UserDTO userDTO = userRepository.findById(userId).map(userMapper::userToUserDTO)
+        final UserDTO userDTO = userRepository.findById(userId).map(userMapper::toUserDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "user", userId)));
         log.info("found user - {}", userDTO);
         return userDTO;

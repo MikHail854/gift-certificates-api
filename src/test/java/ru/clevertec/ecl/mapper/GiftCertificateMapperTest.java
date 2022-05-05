@@ -2,6 +2,7 @@ package ru.clevertec.ecl.mapper;
 
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.clevertec.ecl.dto.GiftCertificateDTO;
 import ru.clevertec.ecl.dto.GiftCertificateFilter;
 import ru.clevertec.ecl.dto.TagDTO;
@@ -12,68 +13,29 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-public class MapperTest {
+public class GiftCertificateMapperTest {
 
-    Mapper mapper = Mappers.getMapper(Mapper.class);
-
-    @Test
-    public void testTagToTagDTOWithoutGiftCertificate() {
-        final TagDTO tagDTOFromMapper = mapper.tagToTagDTO(createTagObject());
-        TagDTO tagDTO = createTagDTOObject();
-        assertEquals(tagDTO, tagDTOFromMapper);
-    }
-
-    @Test
-    public void testTagToTagDTOWithGiftCertificate() {
-        Tag tag = createTagObject();
-        tag.setGiftCertificates(new ArrayList<GiftCertificate>() {{
-            add(createGiftCertificateObject());
-        }});
-
-        final TagDTO tagDTOFromMapper = mapper.tagToTagDTO(tag);
-        TagDTO tagDTO = createTagDTOObject();
-
-        assertEquals(tagDTO, tagDTOFromMapper);
-    }
-
-    @Test
-    public void testTagDTOToTagWithoutGiftCertificate() {
-        final Tag tagFromMapper = mapper.tagDTOToTag(createTagDTOObject());
-        Tag tag = createTagObject();
-        assertEquals(tag, tagFromMapper);
-    }
-
-    @Test
-    public void testTagDTOToTagWithGiftCertificate() {
-        TagDTO tagDTO = createTagDTOObject();
-        tagDTO.setGiftCertificates(new ArrayList<GiftCertificateDTO>() {{
-            add(createGiftCertificateDTOObject());
-        }});
-
-        final Tag tagFromMapper = mapper.tagDTOToTag(tagDTO);
-        Tag tag = createTagObject();
-
-        assertEquals(tag, tagFromMapper);
-    }
-
+    GiftCertificateMapper giftCertificateMapper = Mappers.getMapper(GiftCertificateMapper.class);
 
     @Test
     public void testGiftCertificateToGiftCertificateDTOWithoutTag() {
-        final GiftCertificateDTO giftCertificateDTOFromMapper = mapper.giftCertificateToGiftCertificateDTO(createGiftCertificateObject());
+        final GiftCertificateDTO giftCertificateDTOFromMapper = giftCertificateMapper.toGiftCertificateDTO(createGiftCertificateObject());
         final GiftCertificateDTO giftCertificateDTO = createGiftCertificateDTOObject();
         assertEquals(giftCertificateDTO, giftCertificateDTOFromMapper);
     }
 
     @Test
     public void testGiftCertificateToGiftCertificateDTOWithTag() {
+        TagMapper tagMapper = Mappers.getMapper(TagMapper.class);
+        ReflectionTestUtils.setField(giftCertificateMapper, "tagMapper", tagMapper);
+
         final GiftCertificate giftCertificate = createGiftCertificateObject();
         giftCertificate.setTags(new ArrayList<Tag>() {{
             add(createTagObject());
         }});
 
-        final GiftCertificateDTO giftCertificateDTOFromMapper = mapper.giftCertificateToGiftCertificateDTO(giftCertificate);
+        final GiftCertificateDTO giftCertificateDTOFromMapper = giftCertificateMapper.toGiftCertificateDTO(giftCertificate);
 
         final GiftCertificateDTO giftCertificateDTO = createGiftCertificateDTOObject();
         giftCertificateDTO.setTags(new ArrayList<TagDTO>() {{
@@ -85,19 +47,22 @@ public class MapperTest {
 
     @Test
     public void testGiftCertificateDTOToGiftCertificateWithoutTag() {
-        final GiftCertificate giftCertificateFromMapper = mapper.giftCertificateDTOToGiftCertificate(createGiftCertificateDTOObject());
+        final GiftCertificate giftCertificateFromMapper = giftCertificateMapper.toGiftCertificate(createGiftCertificateDTOObject());
         final GiftCertificate giftCertificate = createGiftCertificateObject();
         assertEquals(giftCertificate, giftCertificateFromMapper);
     }
 
     @Test
     public void testGiftCertificateDTOToGiftCertificateWithTag() {
+        TagMapper tagMapper = Mappers.getMapper(TagMapper.class);
+        ReflectionTestUtils.setField(giftCertificateMapper, "tagMapper", tagMapper);
+
         final GiftCertificateDTO giftCertificateDTO = createGiftCertificateDTOObject();
         giftCertificateDTO.setTags(new ArrayList<TagDTO>() {{
             add(createTagDTOObject());
         }});
 
-        final GiftCertificate giftCertificateFromMapper = mapper.giftCertificateDTOToGiftCertificate(giftCertificateDTO);
+        final GiftCertificate giftCertificateFromMapper = giftCertificateMapper.toGiftCertificate(giftCertificateDTO);
 
         final GiftCertificate giftCertificate = createGiftCertificateObject();
         giftCertificate.setTags(new ArrayList<Tag>() {{
@@ -107,43 +72,10 @@ public class MapperTest {
         assertEquals(giftCertificate, giftCertificateFromMapper);
     }
 
-
-    @Test
-    public void testTagToTagDTOWithGiftCertificateTwoWayCommunication() {
-        Tag tag = createTagObject();
-        tag.setGiftCertificates(new ArrayList<GiftCertificate>() {{
-            add(createGiftCertificateObject());
-        }});
-
-        final TagDTO tagDTOFromMapper = mapper.tagToTagDTO(tag);
-        TagDTO tagDTO = createTagDTOObject();
-        tagDTO.setGiftCertificates(new ArrayList<GiftCertificateDTO>() {{
-            add(createGiftCertificateDTOObject());
-        }});
-
-        assertNotEquals(tagDTO, tagDTOFromMapper);
-    }
-
-    @Test
-    public void testTagDTOToTagWithGiftCertificateTwoWayCommunication() {
-        TagDTO tagDTO = createTagDTOObject();
-        tagDTO.setGiftCertificates(new ArrayList<GiftCertificateDTO>() {{
-            add(createGiftCertificateDTOObject());
-        }});
-
-        final Tag tagFromMapper = mapper.tagDTOToTag(tagDTO);
-        Tag tag = createTagObject();
-        tag.setGiftCertificates(new ArrayList<GiftCertificate>() {{
-            add(createGiftCertificateObject());
-        }});
-
-        assertNotEquals(tag, tagFromMapper);
-    }
-
     @Test
     public void testGiftCertificateFilterToGiftCertificate() {
         final GiftCertificateFilter giftCertificateFilter = createGiftCertificateFilterObject();
-        final GiftCertificate giftCertificateFromMapper = mapper.giftCertificateFilterToGiftCertificate(giftCertificateFilter);
+        final GiftCertificate giftCertificateFromMapper = giftCertificateMapper.toGiftCertificate(giftCertificateFilter);
 
         GiftCertificate giftCertificate = GiftCertificate.builder()
                 .name("na")
@@ -161,6 +93,13 @@ public class MapperTest {
                 .build();
     }
 
+    private TagDTO createTagDTOObject() {
+        return TagDTO.builder()
+                .id(1)
+                .name("someNameTag")
+                .build();
+    }
+
     private GiftCertificate createGiftCertificateObject() {
         return GiftCertificate.builder()
                 .id(1)
@@ -170,13 +109,6 @@ public class MapperTest {
                 .duration(3)
                 .createDate(LocalDateTime.now())
                 .lastUpdateDate(LocalDateTime.now())
-                .build();
-    }
-
-    private TagDTO createTagDTOObject() {
-        return TagDTO.builder()
-                .id(1)
-                .name("someNameTag")
                 .build();
     }
 

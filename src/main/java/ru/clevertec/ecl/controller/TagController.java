@@ -1,15 +1,16 @@
 package ru.clevertec.ecl.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.clevertec.ecl.dto.PageResponse;
 import ru.clevertec.ecl.dto.TagDTO;
 import ru.clevertec.ecl.entty.Tag;
 import ru.clevertec.ecl.service.TagService;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,8 +26,9 @@ public class TagController {
      * @return все найденные теги
      */
     @GetMapping
-    public List<TagDTO> fidAll(Pageable pageable) {
-        return tagService.findAll(pageable);
+    public PageResponse<TagDTO> fidAll(Pageable pageable) {
+        final Page<TagDTO> page = tagService.findAll(pageable);
+        return PageResponse.of(page);
     }
 
     /**

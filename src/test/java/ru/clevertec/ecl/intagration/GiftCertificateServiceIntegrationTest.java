@@ -8,7 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.TestConstructor;
 import ru.clevertec.ecl.dto.GiftCertificateDTO;
+import ru.clevertec.ecl.dto.GiftCertificateDurationDTO;
 import ru.clevertec.ecl.dto.GiftCertificateFilter;
+import ru.clevertec.ecl.dto.GiftCertificatePriceDTO;
 import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.entty.Tag;
 import ru.clevertec.ecl.service.GiftCertificateService;
@@ -101,11 +103,11 @@ public class GiftCertificateServiceIntegrationTest implements BaseIntegrationTes
         );
     }
 
-        @Test
+    @Test
     @DisplayName("the gift certificate without tag will be found if it is saved in the table")
     public void testSaveNewGiftCertificateWithoutTag() {
-            final GiftCertificate giftCertificate = createGiftCertificateObject();
-            final GiftCertificateDTO saved = giftCertificateService.save(giftCertificate);
+        final GiftCertificate giftCertificate = createGiftCertificateObject();
+        final GiftCertificateDTO saved = giftCertificateService.save(giftCertificate);
         assertDoesNotThrow(() -> giftCertificateService.findById(saved.getId()));
     }
 
@@ -157,6 +159,40 @@ public class GiftCertificateServiceIntegrationTest implements BaseIntegrationTes
     @Test
     public void testDeleteThrowsEmptyResultDataAccessException() {
         assertThrows(EmptyResultDataAccessException.class, () -> giftCertificateService.delete(100));
+    }
+
+    @Test
+    public void testUpdatePrice() {
+        GiftCertificatePriceDTO giftCertificatePriceDTO = GiftCertificatePriceDTO.builder()
+                .price(999.98f)
+                .build();
+        final GiftCertificateDTO giftCertificateDTO = giftCertificateService.updatePrice(1, giftCertificatePriceDTO);
+        assertEquals(999.98f, giftCertificateDTO.getPrice());
+    }
+
+    @Test
+    public void testUpdatePriceThrowsEntityNotFoundException() {
+        GiftCertificatePriceDTO giftCertificatePriceDTO = GiftCertificatePriceDTO.builder()
+                .price(999.98f)
+                .build();
+        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.updatePrice(99, giftCertificatePriceDTO));
+    }
+
+    @Test
+    public void testUpdateDuration(){
+        GiftCertificateDurationDTO giftCertificateDurationDTO = GiftCertificateDurationDTO.builder()
+                .duration(999)
+                .build();
+        final GiftCertificateDTO giftCertificateDTO = giftCertificateService.updateDuration(1, giftCertificateDurationDTO);
+        assertEquals(999,giftCertificateDTO.getDuration());
+    }
+
+    @Test
+    public void testUpdateDurationThrowsEntityNotFoundException(){
+        GiftCertificateDurationDTO giftCertificateDurationDTO = GiftCertificateDurationDTO.builder()
+                .duration(999)
+                .build();
+        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.updateDuration(99, giftCertificateDurationDTO));
     }
 
     private GiftCertificate createGiftCertificateObject() {

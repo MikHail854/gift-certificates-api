@@ -5,13 +5,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 import ru.clevertec.ecl.dao.GiftCertificateRepository;
 import ru.clevertec.ecl.dao.TagRepository;
-import ru.clevertec.ecl.dto.GiftCertificateDTO;
-import ru.clevertec.ecl.dto.TagDTO;
+import ru.clevertec.ecl.dto.*;
 import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.entty.Tag;
-import ru.clevertec.ecl.mapper.Mapper;
+import ru.clevertec.ecl.mapper.GiftCertificateMapper;
+import ru.clevertec.ecl.mapper.TagMapper;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -27,13 +28,45 @@ public class GiftCertificateServiceImplTest {
 
     @Mock
     private GiftCertificateRepository giftCertificateRepository;
+
     @Mock
     private TagRepository tagRepository;
+
     @Mock
-    private Mapper mapper;
+    private GiftCertificateMapper giftCertificateMapper;
+
+    @Mock
+    private TagMapper tagMapper;
+
     @InjectMocks
     private GiftCertificateServiceImpl giftCertificateService;
 
+    @Test
+    public void testFindAll() {
+        final GiftCertificate giftCertificate = createGiftCertificateObject();
+        final GiftCertificateDTO giftCertificateDTO = createGiftCertificateDTOObject();
+        ArrayList<GiftCertificate> list = new ArrayList<>();
+        list.add(giftCertificate);
+        list.add(giftCertificate);
+        list.add(giftCertificate);
+
+        final Pageable pageable = getPageable(5, 0, Sort.by("name").ascending());
+        Page<GiftCertificate> returnPage = new PageImpl<>(list, pageable, list.size());
+
+        GiftCertificateFilter filter = GiftCertificateFilter.builder()
+                .name("some")
+                .build();
+
+        ExampleMatcher matcher = ExampleMatcher.matchingAll()
+                .withMatcher("name", match -> match.contains().ignoreCase())
+                .withMatcher("description", match -> match.contains().ignoreCase());
+
+        when(giftCertificateMapper.toGiftCertificateDTO(giftCertificate)).thenReturn(giftCertificateDTO);
+        when(giftCertificateRepository.findAll(Example.of(giftCertificate, matcher), pageable)).thenReturn(returnPage);
+        when(giftCertificateMapper.toGiftCertificate(filter)).thenReturn(giftCertificate);
+
+        assertEquals(3, giftCertificateService.findAll(filter, pageable).getTotalElements());
+    }
 
     @Test
     public void testFindById() {
@@ -43,7 +76,7 @@ public class GiftCertificateServiceImplTest {
         giftCertificateDTO.setId(1);
 
         when(giftCertificateRepository.findById(giftCertificate.getId())).thenReturn(Optional.of(giftCertificate));
-        when(mapper.giftCertificateToGiftCertificateDTO(giftCertificate)).thenReturn(giftCertificateDTO);
+        when(giftCertificateMapper.toGiftCertificateDTO(giftCertificate)).thenReturn(giftCertificateDTO);
 
         assertEquals(giftCertificateDTO, giftCertificateService.findById(giftCertificate.getId()));
     }
@@ -63,7 +96,7 @@ public class GiftCertificateServiceImplTest {
         final TagDTO tagDTO = createTagDTOObject();
 
         when(tagRepository.findByNameIgnoreCase(tagName)).thenReturn(Optional.of(tag));
-        when(mapper.tagToTagDTO(tag)).thenReturn(tagDTO);
+        when(tagMapper.toTagDTO(tag)).thenReturn(tagDTO);
 
 
         final GiftCertificate giftCertificate = createGiftCertificateObject();
@@ -77,7 +110,7 @@ public class GiftCertificateServiceImplTest {
         }};
 
         when(giftCertificateRepository.findByTagsName(tagName)).thenReturn(giftCertificates);
-        when(mapper.giftCertificateToGiftCertificateDTO(giftCertificate)).thenReturn(giftCertificateDTO);
+        when(giftCertificateMapper.toGiftCertificateDTO(giftCertificate)).thenReturn(giftCertificateDTO);
 
         assertEquals(giftCertificatesDTO, giftCertificateService.findGiftCertificateByTagName(tagName));
     }
@@ -110,7 +143,7 @@ public class GiftCertificateServiceImplTest {
         final GiftCertificateDTO giftCertificateDTO = createGiftCertificateDTOObject();
 
         when(giftCertificateRepository.save(giftCertificate)).thenReturn(giftCertificateFromDB);
-        when(mapper.giftCertificateToGiftCertificateDTO(giftCertificateFromDB)).thenReturn(giftCertificateDTO);
+        when(giftCertificateMapper.toGiftCertificateDTO(giftCertificateFromDB)).thenReturn(giftCertificateDTO);
 
         assertEquals(giftCertificateDTO, giftCertificateService.save(giftCertificate));
     }
@@ -150,14 +183,14 @@ public class GiftCertificateServiceImplTest {
 //
 ////        doReturn(giftCertificateDTO).when(giftCertificateService).findById(giftCertificate.getId());
 //        when(giftCertificateRepository.findById(id)).thenReturn(Optional.of(giftCertificateFromDB));
-//        when(mapper.giftCertificateDTOToGiftCertificate(giftCertificateDTOFromDB)).thenReturn(giftCertificateFromDB);
+//        when(giftCertificateMapper.toGiftCertificate(giftCertificateDTOFromDB)).thenReturn(giftCertificateFromDB);
 ////
 //        when(giftCertificateService.findById(inputGiftCertificate.getId())).thenReturn(giftCertificateDTOFromDB);
-//        when(mapper.giftCertificateDTOToGiftCertificate(giftCertificateDTOFromDB)).thenReturn(giftCertificateFromDB);//
+//        when(giftCertificateMapper.toGiftCertificate(giftCertificateDTOFromDB)).thenReturn(giftCertificateFromDB);//
 //
 //        when(giftCertificateRepository.save(inputGiftCertificate)).thenReturn(inputGiftCertificate);
 //
-//        when(mapper.giftCertificateToGiftCertificateDTO(inputGiftCertificate)).thenReturn(giftCertificateDTOFromDB);
+//        when(giftCertificateMapper.toGiftCertificateDTO(inputGiftCertificate)).thenReturn(giftCertificateDTOFromDB);
 //
 //        assertEquals(2, giftCertificateService.save(inputGiftCertificate).getTags().size());
 //    }
@@ -169,7 +202,8 @@ public class GiftCertificateServiceImplTest {
         final GiftCertificateDTO giftCertificateDTO = createGiftCertificateDTOObject();
 
         when(giftCertificateRepository.findById(id)).thenReturn(Optional.of(giftCertificate));
-        when(mapper.giftCertificateToGiftCertificateDTO(giftCertificate)).thenReturn(giftCertificateDTO);
+        when(giftCertificateRepository.saveAndFlush(giftCertificate)).thenReturn(giftCertificate);
+        when(giftCertificateMapper.toGiftCertificateDTO(giftCertificate)).thenReturn(giftCertificateDTO);
 
         assertEquals(giftCertificateDTO, giftCertificateService.update(id, giftCertificateDTO));
     }
@@ -185,6 +219,66 @@ public class GiftCertificateServiceImplTest {
     @Test
     public void testDelete() {
         assertDoesNotThrow(() -> giftCertificateService.delete(1));
+    }
+
+    @Test
+    public void testUpdatePrice() {
+        int id = 1;
+        final GiftCertificate giftCertificate = createGiftCertificateObject();
+        final GiftCertificateDTO giftCertificateDTO = createGiftCertificateDTOObject();
+
+        when(giftCertificateRepository.findById(id)).thenReturn(Optional.of(giftCertificate));
+        when(giftCertificateRepository.saveAndFlush(giftCertificate)).thenReturn(giftCertificate);
+        when(giftCertificateMapper.toGiftCertificateDTO(giftCertificate)).thenReturn(giftCertificateDTO);
+
+        GiftCertificatePriceDTO price = GiftCertificatePriceDTO.builder()
+                .price(123.45f)
+                .build();
+        giftCertificateDTO.setPrice(123.45f);
+
+        assertEquals(giftCertificateDTO.getPrice(), giftCertificateService.updatePrice(id, price).getPrice());
+    }
+
+    @Test
+    public void testUpdatePriceThrowsEntityNotFoundException() {
+        int id = 1;
+        when(giftCertificateRepository.findById(id)).thenReturn(Optional.empty());
+
+        GiftCertificatePriceDTO price = GiftCertificatePriceDTO.builder()
+                .price(123.45f)
+                .build();
+
+        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.updatePrice(id, price));
+    }
+
+    @Test
+    public void testUpdateDuration() {
+        int id = 1;
+        final GiftCertificate giftCertificate = createGiftCertificateObject();
+        final GiftCertificateDTO giftCertificateDTO = createGiftCertificateDTOObject();
+
+        when(giftCertificateRepository.findById(id)).thenReturn(Optional.of(giftCertificate));
+        when(giftCertificateRepository.saveAndFlush(giftCertificate)).thenReturn(giftCertificate);
+        when(giftCertificateMapper.toGiftCertificateDTO(giftCertificate)).thenReturn(giftCertificateDTO);
+
+        GiftCertificateDurationDTO duration = GiftCertificateDurationDTO.builder()
+                .duration(123)
+                .build();
+        giftCertificateDTO.setDuration(123);
+
+        assertEquals(giftCertificateDTO.getDuration(), giftCertificateService.updateDuration(id, duration).getDuration());
+    }
+
+    @Test
+    public void testUpdateDurationThrowsEntityNotFoundException() {
+        int id = 1;
+        when(giftCertificateRepository.findById(id)).thenReturn(Optional.empty());
+
+        GiftCertificateDurationDTO duration = GiftCertificateDurationDTO.builder()
+                .duration(123)
+                .build();
+
+        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.updateDuration(id, duration));
     }
 
 
@@ -220,6 +314,55 @@ public class GiftCertificateServiceImplTest {
         return TagDTO.builder()
                 .name("someNameTag")
                 .build();
+    }
+
+    private Pageable getPageable(int size, int page, Sort sort) {
+        return new Pageable() {
+            @Override
+            public int getPageNumber() {
+                return page;
+            }
+
+            @Override
+            public int getPageSize() {
+                return size;
+            }
+
+            @Override
+            public long getOffset() {
+                return 0;
+            }
+
+            @Override
+            public Sort getSort() {
+                return sort;
+            }
+
+            @Override
+            public Pageable next() {
+                return null;
+            }
+
+            @Override
+            public Pageable previousOrFirst() {
+                return null;
+            }
+
+            @Override
+            public Pageable first() {
+                return null;
+            }
+
+            @Override
+            public Pageable withPage(int pageNumber) {
+                return null;
+            }
+
+            @Override
+            public boolean hasPrevious() {
+                return false;
+            }
+        };
     }
 
 

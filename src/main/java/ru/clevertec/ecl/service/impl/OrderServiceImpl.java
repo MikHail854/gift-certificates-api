@@ -70,7 +70,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDTO findOrderByIdAndUserId(Integer userId, Integer orderId) {
         if (userRepository.findById(userId).isPresent()) {
-            final OrderDTO dto = orderMapper.toOrderDTO(orderRepository.findByIdAndUserId(orderId, userId));
+            final OrderDTO dto = orderRepository.findByIdAndUserId(orderId, userId).map(orderMapper::toOrderDTO)
+                    .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "order", orderId)));
             log.info("found orders - {}", dto);
             return dto;
         }

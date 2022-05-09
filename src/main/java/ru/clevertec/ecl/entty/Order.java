@@ -1,9 +1,6 @@
 package ru.clevertec.ecl.entty;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -39,6 +36,7 @@ public class Order {
     private Float price;
 
     @NotNull
+    @EqualsAndHashCode.Exclude
     @Column(name = "purchase_date")
     private LocalDateTime purchaseDate;
 

@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 
 @Value
+@Builder
 @RequiredArgsConstructor
 public class OrderDTO {
 
@@ -18,6 +19,7 @@ public class OrderDTO {
     Integer certificateId;
     @Positive
     Float price;
+    @EqualsAndHashCode.Exclude
     LocalDateTime purchaseDate;
 
 }

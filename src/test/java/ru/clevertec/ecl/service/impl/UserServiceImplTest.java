@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
-import ru.clevertec.ecl.dao.UserRepository;
+import ru.clevertec.ecl.repositories.UserRepository;
 import ru.clevertec.ecl.dto.UserDTO;
 import ru.clevertec.ecl.entty.User;
 import ru.clevertec.ecl.mapper.UserMapper;

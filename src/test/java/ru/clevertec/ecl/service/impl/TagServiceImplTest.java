@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import ru.clevertec.ecl.dao.TagRepository;
+import ru.clevertec.ecl.repositories.TagRepository;
 import ru.clevertec.ecl.dto.TagDTO;
 import ru.clevertec.ecl.entty.Tag;
 import ru.clevertec.ecl.mapper.TagMapper;

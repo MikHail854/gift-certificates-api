@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.clevertec.ecl.dao.UserRepository;
+import ru.clevertec.ecl.repositories.UserRepository;
 import ru.clevertec.ecl.dto.UserDTO;
 import ru.clevertec.ecl.mapper.UserMapper;
 import ru.clevertec.ecl.service.UserService;

@@ -1,4 +1,4 @@
-package ru.clevertec.ecl.dao;
+package ru.clevertec.ecl.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

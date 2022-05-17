@@ -4,10 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.clevertec.ecl.dao.GiftCertificateRepository;
-import ru.clevertec.ecl.dao.OrderRepository;
-import ru.clevertec.ecl.dao.UserRepository;
+import ru.clevertec.ecl.repositories.GiftCertificateRepository;
+import ru.clevertec.ecl.repositories.OrderRepository;
+import ru.clevertec.ecl.repositories.UserRepository;
 import ru.clevertec.ecl.dto.OrderDTO;
+import ru.clevertec.ecl.dto.OrderListDTO;
 import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.entty.Order;
 import ru.clevertec.ecl.entty.User;
@@ -20,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.clevertec.ecl.constants.Constants.EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT;
+import static ru.clevertec.ecl.constants.Constants.*;
 
 @Slf4j
 @Service
@@ -55,16 +56,18 @@ public class OrderServiceImpl implements OrderService {
         return orderDTO;
     }
 
+    //todo метод не правильно работает тк заказы разбросаны по разным нодам, а поиск идет по одной
+    // сходить во все сервисы и возвращать все заказы пользователя
     @Override
-    public List<OrderDTO> findOrdersByUserId(Integer userId) {
-        if (userRepository.findById(userId).isPresent()) {
-            final List<OrderDTO> dto = orderRepository.findByUserId(userId).stream()
-                    .map(orderMapper::toOrderDTO)
-                    .collect(Collectors.toList());
-            log.info("found orders - {}", dto);
-            return dto;
-        }
-        throw new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "user", userId));
+    public OrderListDTO findOrdersByUserId(Integer userId) {
+            if (userRepository.findById(userId).isPresent()) {
+                final List<OrderDTO> dto = orderRepository.findByUserId(userId).stream()
+                        .map(orderMapper::toOrderDTO)
+                        .collect(Collectors.toList());
+                log.info("found orders - {}", dto);
+                return OrderListDTO.builder().orderDTOList(dto).build();
+            }
+            throw new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "user", userId));
     }
 
     @Override

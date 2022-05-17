@@ -3,9 +3,9 @@ package ru.clevertec.ecl.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.clevertec.ecl.dto.OrderDTO;
+import ru.clevertec.ecl.dto.OrderListDTO;
 import ru.clevertec.ecl.service.OrderService;
 
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,7 +33,7 @@ public class OrderController {
      * @return список заказов одного пользователя
      */
     @GetMapping
-    public List<OrderDTO> findOrdersByUserId(@RequestParam("user_id") Integer userId) {
+    public OrderListDTO findOrdersByUserId(@RequestParam("user_id") Integer userId) {
         return orderService.findOrdersByUserId(userId);
     }
 

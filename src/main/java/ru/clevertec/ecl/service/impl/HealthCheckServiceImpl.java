@@ -21,7 +21,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     private final ServerProperties serverProperties;
 
     @Override
-    @Scheduled(cron = "* * * * * ?")
+    @Scheduled(cron = "0 * * * * ?")
     public void nodeHealthCheck() {
         for (int i = 0; i < serverProperties.getPorts().size(); i++) {
             try {

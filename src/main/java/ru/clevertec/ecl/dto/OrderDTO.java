@@ -6,9 +6,10 @@ import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
 
 
-@Value
+@Data
 @Builder
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderDTO {
 
     @Positive

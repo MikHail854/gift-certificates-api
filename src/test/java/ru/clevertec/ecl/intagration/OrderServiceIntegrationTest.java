@@ -55,15 +55,15 @@ public class OrderServiceIntegrationTest implements BaseIntegrationTest {
         assertThrows(EntityNotFoundException.class, () -> orderService.findOrderByIdAndUserId(999, 1));
     }
 
-    @Test
-    public void testFindOrdersByUserId(){
-        final List<OrderDTO> ordersByUserId = orderService.findOrdersByUserId(1);
-        assertAll(
-                () -> assertEquals(2, ordersByUserId.size()),
-                () -> assertEquals(2, ordersByUserId.get(0).getCertificateId()),
-                () -> assertEquals(1, ordersByUserId.get(1).getCertificateId())
-        );
-    }
+//    @Test
+//    public void testFindOrdersByUserId(){
+//        final List<OrderDTO> ordersByUserId = orderService.findOrdersByUserId(1);
+//        assertAll(
+//                () -> assertEquals(2, ordersByUserId.size()),
+//                () -> assertEquals(2, ordersByUserId.get(0).getCertificateId()),
+//                () -> assertEquals(1, ordersByUserId.get(1).getCertificateId())
+//        );
+//    }
 
     @Test
     public void tesFindOrdersByUserIdThrowsEntityNotFoundException() {

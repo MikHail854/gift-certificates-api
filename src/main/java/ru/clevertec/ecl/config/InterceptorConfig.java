@@ -1,22 +1,26 @@
 package ru.clevertec.ecl.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import ru.clevertec.ecl.interceptor.RequestGetInterceptor;
+import ru.clevertec.ecl.interceptor.IntegrationDataInterceptor;
+import ru.clevertec.ecl.interceptor.OrderInterceptor;
 
 @Configuration
+@RequiredArgsConstructor
 public class InterceptorConfig implements WebMvcConfigurer {
 
-    @Autowired
-    private RequestGetInterceptor requestGetInterceptor;
+    private final OrderInterceptor orderInterceptor;
+    private final IntegrationDataInterceptor integrationDataInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(requestGetInterceptor)
-                .addPathPatterns("/**")
-                .excludePathPatterns("/health-check");
+        registry.addInterceptor(orderInterceptor)
+                .addPathPatterns("/orders/**");
+        registry.addInterceptor(integrationDataInterceptor)
+                .addPathPatterns("/*/update/**")
+                .addPathPatterns("/*/save");
     }
 
 }

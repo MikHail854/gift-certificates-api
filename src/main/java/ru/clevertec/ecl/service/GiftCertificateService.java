@@ -28,4 +28,6 @@ public interface GiftCertificateService {
 
     List<GiftCertificateDTO> findGiftCertificateByTagName(String tagName);
 
+    boolean checkGift(int id);
+
 }

@@ -8,12 +8,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.clevertec.ecl.repositories.GiftCertificateRepository;
-import ru.clevertec.ecl.repositories.TagRepository;
 import ru.clevertec.ecl.dto.*;
 import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.mapper.GiftCertificateMapper;
 import ru.clevertec.ecl.mapper.TagMapper;
+import ru.clevertec.ecl.repositories.GiftCertificateRepository;
+import ru.clevertec.ecl.repositories.TagRepository;
 import ru.clevertec.ecl.service.GiftCertificateService;
 
 import javax.persistence.EntityNotFoundException;
@@ -85,7 +85,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             giftCertificate.setCreateDate(LocalDateTime.now());
         }
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
-        final GiftCertificateDTO saved = giftCertificateMapper.toGiftCertificateDTO(giftCertificateRepository.save(giftCertificate));
+        final GiftCertificateDTO saved = giftCertificateMapper.toGiftCertificateDTO(giftCertificateRepository.saveAndFlush(giftCertificate));
         log.info("successful saving of the gift certificate in the database - {}", saved);
         return saved;
     }
@@ -134,6 +134,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public void delete(int id) {
         giftCertificateRepository.deleteById(id);
         log.info("gift certificate with id = {} deleted successfully", id);
+    }
+
+    @Override
+    public boolean checkGift(int id) {
+        return giftCertificateRepository.findById(id).isPresent();
     }
 
     private GiftCertificate updateGiftCertificateFromGiftCertificateDTO(GiftCertificate certificate, GiftCertificateDTO dto) {

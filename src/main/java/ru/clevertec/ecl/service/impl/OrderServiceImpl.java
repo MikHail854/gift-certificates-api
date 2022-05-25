@@ -56,18 +56,16 @@ public class OrderServiceImpl implements OrderService {
         return orderDTO;
     }
 
-    //todo метод не правильно работает тк заказы разбросаны по разным нодам, а поиск идет по одной
-    // сходить во все сервисы и возвращать все заказы пользователя
     @Override
     public OrderListDTO findOrdersByUserId(Integer userId) {
-            if (userRepository.findById(userId).isPresent()) {
-                final List<OrderDTO> dto = orderRepository.findByUserId(userId).stream()
-                        .map(orderMapper::toOrderDTO)
-                        .collect(Collectors.toList());
-                log.info("found orders - {}", dto);
-                return OrderListDTO.builder().orderDTOList(dto).build();
-            }
-            throw new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "user", userId));
+        if (userRepository.findById(userId).isPresent()) {
+            final List<OrderDTO> dto = orderRepository.findByUserId(userId).stream()
+                    .map(orderMapper::toOrderDTO)
+                    .collect(Collectors.toList());
+            log.info("found orders - {}", dto);
+            return OrderListDTO.builder().orderDTOList(dto).build();
+        }
+        throw new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "user", userId));
     }
 
     @Override

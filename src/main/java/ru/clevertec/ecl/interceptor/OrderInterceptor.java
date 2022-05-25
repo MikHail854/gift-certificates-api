@@ -2,41 +2,38 @@ package ru.clevertec.ecl.interceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javassist.NotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.NotFound;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.HandlerInterceptor;
 import ru.clevertec.ecl.config.ServerProperties;
 import ru.clevertec.ecl.dto.OrderDTO;
+import ru.clevertec.ecl.dto.SequenceIdDTO;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
-import static ru.clevertec.ecl.constants.Constants.URL_ORDERS_GET_SEQUENCE;
+import static ru.clevertec.ecl.constants.Constants.URL_SEQUENCE_ORDERS;
 
 
 @Slf4j
 @Component
-public class RequestGetInterceptor implements HandlerInterceptor {
+@RequiredArgsConstructor
+public class OrderInterceptor implements HandlerInterceptor {
 
-    @Autowired
-    private RestTemplate restTemplate;
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final ObjectMapper mapper;
+    private final RestTemplate restTemplate;
+    private final ServerProperties serverProperties;
 
-    @Autowired
-    private ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
 //    @PostConstruct
 //    public void main() {
@@ -45,62 +42,31 @@ public class RequestGetInterceptor implements HandlerInterceptor {
 //        }
 //    }
 
-    @Autowired
-    private ServerProperties serverProperties;
-
-    @Autowired
-    private HttpServlet httpServlet;
-
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
 
-        if (request.getMethod().equals("GET")) {
-            final boolean requiredServer = checkServerForGetMethod(request, getIdFromPath(request));
+        if (HttpMethod.GET.toString().equals(request.getMethod())) {
+            final boolean requiredServer = checkServer(request, getIdFromPath(request));
             if (!requiredServer) {
                 final int id = getIdFromPath(request);
-                final StringBuilder newURL = getNewURL(request, id);
-                response.sendRedirect(String.valueOf(newURL));
-
-                /*final Object jsonObject = changeServer(request);
-                ObjectMapper mapper = new ObjectMapper();
-                String json = mapper.writeValueAsString(jsonObject);
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                response.getWriter().write(json);*/
+                final String newURL = getNewURL(request, id);
+                response.sendRedirect(newURL);
                 return false;
             }
-        }
-        if ("POST".equalsIgnoreCase(request.getMethod())) {
-//            final Integer newId = jdbcTemplate.queryForObject("SELECT nextval('order_data_id_seq');", Integer.class);
+        } else if (HttpMethod.POST.toString().equals(request.getMethod())) {
             final Integer sequenceId = getSequenceId();
-            final boolean requiredServer = checkServerForGetMethod(request, sequenceId);
+            final boolean requiredServer = checkServer(request, sequenceId);
             if (!requiredServer) {
-//                final String body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-//                log.info("!!! body: {}", body);
-//                final String newServerPort = getNewPort(newId);
-
-                final StringBuilder newURL = getNewURL(request, sequenceId);
-                log.info("!!! newURL: {}", newURL);
-//                restTemplate.postForObject(String.valueOf(newURL), request, OrderDTO.class);
-                log.info("!!! restTemplate: {}", restTemplate);
-                final OrderDTO orderDTO = restTemplate.postForObject(String.valueOf(newURL), request, OrderDTO.class);
-                ObjectMapper mapper = new ObjectMapper();
+                final String newURL = getNewURL(request, sequenceId);
+                final OrderDTO orderDTO = restTemplate.postForObject(newURL, null, OrderDTO.class);
                 String json = mapper.writeValueAsString(orderDTO);
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setCharacterEncoding(StandardCharsets.UTF_8.name());
                 response.getWriter().write(json);
-
-
-//                response.sendRedirect(String.valueOf(newURL));
                 return false;
-//                ServletContext servletContext =  getServletContext();
-//                RequestDispatcher requestDispatcher = servletContext.getRequestDispatcher(String.valueOf(newURL));
-//                requestDispatcher.forward(request, response);
-
             }
-
         }
 
         return true;
@@ -108,9 +74,7 @@ public class RequestGetInterceptor implements HandlerInterceptor {
     }
 
 
-    private boolean checkServerForGetMethod(HttpServletRequest request, Integer id) {
-//        int id = getIdFromPath(request);
-
+    private boolean checkServer(HttpServletRequest request, Integer id) {
         final int localPort = request.getLocalPort();
         return ((id % 3 == 1 && localPort == 9001)
                 || (id % 3 == 2 && localPort == 9002)
@@ -121,32 +85,17 @@ public class RequestGetInterceptor implements HandlerInterceptor {
         return serverProperties.getPorts().get(id % serverProperties.getPorts().size());
     }
 
-    private StringBuilder getNewURL(HttpServletRequest request, int id) {
+    private String getNewURL(HttpServletRequest request, int id) {
         final StringBuffer requestURL = request.getRequestURL();
         final String newServerPort = getNewPort(id);
 
-        StringBuilder newURL = new StringBuilder();
-        for (int i = 0; i < requestURL.length(); i++) {
-            if (i == 16) { //todo заменение порта не завязываясь на индекс
-                newURL.append(requestURL.charAt(i));
-                newURL.append(newServerPort);
-                i = i + 4;
-                continue;
-            }
-            newURL.append(requestURL.charAt(i));
-        }
-
+        String newURL = requestURL.toString().replace(String.valueOf(request.getLocalPort()), newServerPort);
         if (request.getQueryString() != null) {
-            newURL.append("?");
-            newURL.append(request.getQueryString());
+            newURL = newURL + "?" + request.getQueryString();
         }
         return newURL;
     }
 
-//    private Object changeServer(HttpServletRequest request) {
-//        final StringBuilder newURL = getNewURL(request);
-//        return restTemplate.getForObject(String.valueOf(newURL), Object.class);
-//    }
 
     private Integer getIdFromPath(HttpServletRequest request) {
 
@@ -165,22 +114,20 @@ public class RequestGetInterceptor implements HandlerInterceptor {
     }
 
     private Integer getSequenceId() throws NotFoundException {
-        final Integer max = serverProperties.getPorts().values().stream()
+        final Integer maxSequenceId = serverProperties.getPorts().values().stream()
                 .map(port -> CompletableFuture.supplyAsync(() -> restTemplate.getForObject(buildUrlSequence(port), Integer.class)))
                 .map(CompletableFuture::join)
                 .max(Integer::compareTo).orElseThrow(() -> new NotFoundException("max sequence Id not found"));
-        log.info("!!! max: {}", max);
 
-        //todo
-        final Stream<Void> voidStream = serverProperties.getPorts().values().stream()
-                .map(port -> CompletableFuture.supplyAsync(() -> restTemplate.patchForObject(buildUrlSequence(port), max - 1, Void.class)))
-                .map(CompletableFuture::join);
+        serverProperties.getPorts().values()
+                .forEach(port -> restTemplate.put(buildUrlSequence(port),
+                        new SequenceIdDTO(maxSequenceId - 1)));
 
-        return max;
+        return maxSequenceId;
     }
 
     private String buildUrlSequence(String port) {
-        return String.format(URL_ORDERS_GET_SEQUENCE, port);
+        return String.format(URL_SEQUENCE_ORDERS, port);
     }
 
 

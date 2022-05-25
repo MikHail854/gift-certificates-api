@@ -48,7 +48,7 @@ public class TagController {
      * @param tag тег
      * @return сохраненный тег
      */
-    @PostMapping
+    @PostMapping("/save")
     public TagDTO save(@RequestBody @Valid Tag tag) {
         return tagService.save(tag);
     }
@@ -60,7 +60,7 @@ public class TagController {
      * @param tag новые значения
      * @return обновленный тег
      */
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public TagDTO update(@PathVariable("id") int id, @RequestBody @Valid TagDTO tag) {
         return tagService.update(id, tag);
     }

@@ -2,6 +2,7 @@ package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
@@ -39,6 +40,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
 
     @Override
+    @Cacheable(value = "certificate", sync = true)
     public Page<GiftCertificateDTO> findAll(GiftCertificateFilter filter, Pageable pageable) {
         ExampleMatcher matcher = ExampleMatcher.matchingAll()
                 .withMatcher("name", match -> match.contains().ignoreCase())
@@ -49,6 +51,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
+    @Cacheable(value = "certificate", sync = true)
     public GiftCertificateDTO findById(int id) {
         final GiftCertificateDTO dto = giftCertificateRepository.findById(id).map(giftCertificateMapper::toGiftCertificateDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "gift certificate", id)));
@@ -57,6 +60,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
+    @Cacheable(value = "certificate", sync = true)
     public List<GiftCertificateDTO> findGiftCertificateByTagName(String tagName) {
         final Optional<TagDTO> tagDTO = tagRepository.findByNameIgnoreCase(tagName).map(tagMapper::toTagDTO);
         if (tagDTO.isPresent()) {

@@ -2,6 +2,7 @@ package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.ecl.repositories.GiftCertificateRepository;
@@ -57,6 +58,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Cacheable(value = "order", sync = true)
     public OrderListDTO findOrdersByUserId(Integer userId) {
         if (userRepository.findById(userId).isPresent()) {
             final List<OrderDTO> dto = orderRepository.findByUserId(userId).stream()
@@ -69,6 +71,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Cacheable(value = "order", sync = true)
     public OrderDTO findOrderByIdAndUserId(Integer userId, Integer orderId) {
         if (userRepository.findById(userId).isPresent()) {
             final OrderDTO dto = orderRepository.findByIdAndUserId(orderId, userId).map(orderMapper::toOrderDTO)
@@ -80,6 +83,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Cacheable(value = "order", sync = true)
     public OrderDTO findById(int id) {
         final OrderDTO dto = orderRepository.findById(id).map(orderMapper::toOrderDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "order", id)));

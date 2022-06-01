@@ -2,14 +2,15 @@ package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.clevertec.ecl.repositories.TagRepository;
 import ru.clevertec.ecl.dto.TagDTO;
 import ru.clevertec.ecl.entty.Tag;
 import ru.clevertec.ecl.mapper.TagMapper;
+import ru.clevertec.ecl.repositories.TagRepository;
 import ru.clevertec.ecl.service.TagService;
 
 import javax.persistence.EntityNotFoundException;
@@ -29,11 +30,13 @@ public class TagServiceImpl implements TagService {
     private final TagMapper tagMapper;
 
     @Override
+    @Cacheable(value = "tag", sync = true)
     public Page<TagDTO> findAll(Pageable pageable) {
         return tagRepository.findAll(pageable).map(tagMapper::toTagDTO);
     }
 
     @Override
+    @Cacheable(value = "tag", sync = true)
     public TagDTO findById(int id) {
         final TagDTO dto = tagRepository.findById(id).map(tagMapper::toTagDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "tag", id)));

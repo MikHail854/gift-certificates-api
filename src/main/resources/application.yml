@@ -12,12 +12,9 @@ spring:
     username: bestuser
     password: bestuser
     driver-class-name: org.postgresql.Driver
-
-management:
-  endpoint:
-    health:
-      enabled: true
-
+  cache:
+    caffeine:
+      spec: maximumSize=20,expireAfterAccess=1h
 
 server:
   port: ${PORT:9999}

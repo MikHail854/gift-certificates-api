@@ -8,37 +8,34 @@ spring:
   #    hibernate:
   #      ddl-auto: create
   datasource:
-    url: jdbc:postgresql://localhost:5432/Node${PORT}?useSSL=true&serverTimezone=UTC
+    url: jdbc:postgresql://localhost:5432/${PORT}?useSSL=true&serverTimezone=UTC
     username: bestuser
     password: bestuser
     driver-class-name: org.postgresql.Driver
+
+management:
+  endpoint:
+    health:
+      enabled: true
 
 
 server:
   port: ${PORT:9999}
 
-  properties:
-#    host: http://localhost
-    ports:
-      1: 9001
-      2: 9002
-      0: 9003
-
-
-
-#    url: jdbc:postgresql://localhost:5432/taskX?useSSL=true&serverTimezone=UTC
-#    username: bestuser
-#    password: bestuser
-#    driver-class-name: org.postgresql.Driver
-
-#    node1:
-#      jdbcUrl: jdbc:postgresql://localhost:5432/Node1?useSSL=true&serverTimezone=UTC
-#      username: bestuser
-#      password: bestuser
-#      driver-class-name: org.postgresql.Driver
-#    node2:
-#      jdbcUrl: jdbc:postgresql://localhost:5432/Node2?useSSL=true&serverTimezone=UTC
-#      username: bestuser
-#      password: bestuser
-#      driver-class-name: org.postgresql.Driver
-
+config:
+  nodes:
+    1:
+      replicas:
+        - port: 1001
+        - port: 1002
+        - port: 1003
+    2:
+      replicas:
+        - port: 2001
+        - port: 2002
+        - port: 2003
+    0:
+      replicas:
+        - port: 3001
+        - port: 3002
+        - port: 3003

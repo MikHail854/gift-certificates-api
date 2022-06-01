@@ -10,13 +10,14 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.HandlerInterceptor;
-import ru.clevertec.ecl.config.ServerProperties;
+import ru.clevertec.ecl.config.Cluster;
 import ru.clevertec.ecl.dto.OrderDTO;
 import ru.clevertec.ecl.dto.SequenceIdDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,9 +30,9 @@ import static ru.clevertec.ecl.constants.Constants.URL_SEQUENCE_ORDERS;
 @RequiredArgsConstructor
 public class OrderInterceptor implements HandlerInterceptor {
 
+    private final Cluster cluster;
     private final ObjectMapper mapper;
     private final RestTemplate restTemplate;
-    private final ServerProperties serverProperties;
 
     private final ApplicationContext applicationContext;
 
@@ -76,16 +77,21 @@ public class OrderInterceptor implements HandlerInterceptor {
 
     private boolean checkServer(HttpServletRequest request, Integer id) {
         final int localPort = request.getLocalPort();
-        return ((id % 3 == 1 && localPort == 9001)
-                || (id % 3 == 2 && localPort == 9002)
-                || (id % 3 == 0 && localPort == 9003));
+
+        return Objects.nonNull(cluster.getNodes().get(id % 3).getReplicas().stream()
+                .filter(replica -> Integer.parseInt(replica.getPort()) == localPort)
+                .findFirst().orElse(null));
     }
 
     private String getNewPort(int id) {
-        return serverProperties.getPorts().get(id % serverProperties.getPorts().size());
+        return cluster.getNodes().get(id % 3).getReplicas().stream()
+                .filter(Cluster.Replica::getIsAlive)
+                .findFirst()
+                .map(Cluster.Replica::getPort)
+                .orElseThrow(() -> new RuntimeException("no active ports found"));
     }
 
-    private String getNewURL(HttpServletRequest request, int id) {
+    private String getNewURL(HttpServletRequest request, int id) throws NotFoundException {
         final StringBuffer requestURL = request.getRequestURL();
         final String newServerPort = getNewPort(id);
 
@@ -113,17 +119,29 @@ public class OrderInterceptor implements HandlerInterceptor {
         return Integer.parseInt(id);
     }
 
-    private Integer getSequenceId() throws NotFoundException {
-        final Integer maxSequenceId = serverProperties.getPorts().values().stream()
-                .map(port -> CompletableFuture.supplyAsync(() -> restTemplate.getForObject(buildUrlSequence(port), Integer.class)))
+    private Integer getSequenceId() {
+        final Integer maxSequenceId = cluster.getNodes().values().stream()
+                .map(node -> CompletableFuture.supplyAsync(() -> node.getReplicas().stream()
+                        .filter(Cluster.Replica::getIsAlive)
+                        .map(replica -> CompletableFuture.supplyAsync(
+                                () -> restTemplate.getForObject(buildUrlSequence(replica.getPort()), Integer.class)))
+                        .map(CompletableFuture::join)
+                        .max(Integer::compareTo)
+                        .orElseThrow(() -> new RuntimeException("max sequence ID not found"))
+                ))
                 .map(CompletableFuture::join)
-                .max(Integer::compareTo).orElseThrow(() -> new NotFoundException("max sequence Id not found"));
+                .max(Integer::compareTo)
+                .orElseThrow(() -> new RuntimeException("max sequence ID not found"));
 
-        serverProperties.getPorts().values()
-                .forEach(port -> restTemplate.put(buildUrlSequence(port),
-                        new SequenceIdDTO(maxSequenceId - 1)));
+        setSequence(maxSequenceId);
 
         return maxSequenceId;
+    }
+
+    private void setSequence(int maxSequenceId){
+        cluster.getNodes().values()
+                .forEach(node -> node.getReplicas()
+                        .forEach(replica -> restTemplate.put(buildUrlSequence(replica.getPort()), new SequenceIdDTO(maxSequenceId - 1))));
     }
 
     private String buildUrlSequence(String port) {

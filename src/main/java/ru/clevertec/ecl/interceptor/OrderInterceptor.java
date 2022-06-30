@@ -1,8 +1,8 @@
 package ru.clevertec.ecl.interceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
@@ -91,7 +91,9 @@ public class OrderInterceptor implements HandlerInterceptor {
                 .orElseThrow(() -> new RuntimeException("no active ports found"));
     }
 
-    private String getNewURL(HttpServletRequest request, int id) throws NotFoundException {
+    @SneakyThrows
+//    private String getNewURL(HttpServletRequest request, int id) throws NotFoundException {
+    private String getNewURL(HttpServletRequest request, int id) {
         final StringBuffer requestURL = request.getRequestURL();
         final String newServerPort = getNewPort(id);
 

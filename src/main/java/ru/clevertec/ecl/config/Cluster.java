@@ -30,7 +30,7 @@ public class Cluster {
     @NoArgsConstructor
     public static class Replica {
         private String port;
-        private Boolean isAlive = true;
+        private Boolean isAlive = false;
     }
 
 }

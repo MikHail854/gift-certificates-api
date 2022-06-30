@@ -40,3 +40,16 @@ CREATE TABLE order_data
     FOREIGN KEY (user_id) references user_data (id),
     FOREIGN KEY (certificate_id) references gift_certificate (id)
 );
+
+CREATE TABLE commit_log
+(
+    id   SERIAL UNIQUE NOT NULL,
+    url  VARCHAR(150),
+    body VARCHAR(500)
+);
+
+CREATE TABLE commit_log_lock
+(
+    id   SERIAL UNIQUE NOT NULL,
+    locked boolean
+)

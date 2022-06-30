@@ -145,7 +145,7 @@ public class GiftCertificateServiceImplTest {
         when(giftCertificateRepository.save(giftCertificate)).thenReturn(giftCertificateFromDB);
         when(giftCertificateMapper.toGiftCertificateDTO(giftCertificateFromDB)).thenReturn(giftCertificateDTO);
 
-        assertEquals(giftCertificateDTO, giftCertificateService.save(giftCertificate));
+        assertEquals(giftCertificateDTO, giftCertificateService.save(giftCertificate, false));
     }
 
 //    @Test

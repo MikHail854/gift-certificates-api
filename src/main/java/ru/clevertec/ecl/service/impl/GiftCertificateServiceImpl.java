@@ -1,12 +1,15 @@
 package ru.clevertec.ecl.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.ecl.dto.*;
@@ -15,7 +18,9 @@ import ru.clevertec.ecl.mapper.GiftCertificateMapper;
 import ru.clevertec.ecl.mapper.TagMapper;
 import ru.clevertec.ecl.repositories.GiftCertificateRepository;
 import ru.clevertec.ecl.repositories.TagRepository;
+import ru.clevertec.ecl.service.CommitLogService;
 import ru.clevertec.ecl.service.GiftCertificateService;
+import ru.clevertec.ecl.service.KafkaCommitLogListener;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -26,6 +31,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ru.clevertec.ecl.constants.Constants.EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT;
+import static ru.clevertec.ecl.constants.Constants.URL_SAVE_GIFT_CERTIFICATE;
 
 @Slf4j
 @Service
@@ -33,10 +39,12 @@ import static ru.clevertec.ecl.constants.Constants.EXCEPTION_MESSAGE_ENTITY_NOT_
 @Transactional(readOnly = true)
 public class GiftCertificateServiceImpl implements GiftCertificateService {
 
-    private final GiftCertificateRepository giftCertificateRepository;
-    private final TagRepository tagRepository;
-    private final GiftCertificateMapper giftCertificateMapper;
+    private final ObjectMapper mapper;
     private final TagMapper tagMapper;
+    private final TagRepository tagRepository;
+    private final CommitLogService commitLogService;
+    private final GiftCertificateMapper giftCertificateMapper;
+    private final GiftCertificateRepository giftCertificateRepository;
 
 
     @Override
@@ -75,7 +83,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     @Transactional
-    public GiftCertificateDTO save(GiftCertificate giftCertificate) {
+    public GiftCertificateDTO save(GiftCertificate giftCertificate, Boolean saveToCommitLog) {
         log.info("gift certificate to save to database - {}", giftCertificate);
         if (Objects.nonNull(giftCertificate.getId()) && giftCertificateRepository.findById(giftCertificate.getId()).isPresent()) {
             final GiftCertificate giftCertificateFromDB = giftCertificateMapper.toGiftCertificate(findById(giftCertificate.getId()));
@@ -91,7 +99,21 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
         final GiftCertificateDTO saved = giftCertificateMapper.toGiftCertificateDTO(giftCertificateRepository.saveAndFlush(giftCertificate));
         log.info("successful saving of the gift certificate in the database - {}", saved);
+        if (Objects.nonNull(saveToCommitLog) && saveToCommitLog) {
+            sendToCommitLogSave(giftCertificate);
+        }
         return saved;
+    }
+
+    @SneakyThrows
+    private void sendToCommitLogSave(GiftCertificate giftCertificate) {
+        commitLogService.sendToCommitLog(CommitLogDTO.builder()
+                .id(giftCertificate.getId())
+                .url(URL_SAVE_GIFT_CERTIFICATE)
+                .method(HttpMethod.POST)
+                .body(mapper.writeValueAsString(giftCertificate))
+                .typeObject(TypeObject.GIFT)
+                .build());
     }
 
     @Override

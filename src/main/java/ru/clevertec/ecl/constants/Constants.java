@@ -15,4 +15,9 @@ public class Constants {
 
     public static final String URL_SEQUENCE_ORDERS = "http://localhost:%s/sequence/orders";
 
+    public static final String URL_COMMIT_LOG = "http://localhost:%s/commit_log?request_from_client=false";
+
+    public static final String URL_SAVE_GIFT_CERTIFICATE = "http://localhost:%s/gifts/save?save_to_commit_log=false";
+
+
 }

@@ -107,7 +107,7 @@ public class GiftCertificateServiceIntegrationTest implements BaseIntegrationTes
     @DisplayName("the gift certificate without tag will be found if it is saved in the table")
     public void testSaveNewGiftCertificateWithoutTag() {
         final GiftCertificate giftCertificate = createGiftCertificateObject();
-        final GiftCertificateDTO saved = giftCertificateService.save(giftCertificate);
+        final GiftCertificateDTO saved = giftCertificateService.save(giftCertificate, false);
         assertDoesNotThrow(() -> giftCertificateService.findById(saved.getId()));
     }
 
@@ -121,7 +121,7 @@ public class GiftCertificateServiceIntegrationTest implements BaseIntegrationTes
                     .name("someNameTag")
                     .build());
         }});
-        final GiftCertificateDTO saved = giftCertificateService.save(giftCertificate);
+        final GiftCertificateDTO saved = giftCertificateService.save(giftCertificate, false);
         assertAll(
                 () -> assertDoesNotThrow(() -> giftCertificateService.findById(saved.getId())),
                 () -> assertEquals("someNameTag", giftCertificateService.findById(saved.getId()).getTags().get(0).getName())

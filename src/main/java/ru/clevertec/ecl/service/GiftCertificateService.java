@@ -16,7 +16,7 @@ public interface GiftCertificateService {
 
     GiftCertificateDTO findById(int id);
 
-    GiftCertificateDTO save(GiftCertificate giftCertificate);
+    GiftCertificateDTO save(GiftCertificate giftCertificate, Boolean saveToCommitLog);
 
     GiftCertificateDTO update(int id, GiftCertificateDTO giftCertificateDTO);
 

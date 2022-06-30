@@ -63,8 +63,9 @@ public class GiftCertificateController {
      * @return сохраненный подарочный сертификат
      */
     @PostMapping("/save")
-    public GiftCertificateDTO save(@RequestBody @Valid GiftCertificate giftCertificate) {
-        return giftCertificateService.save(giftCertificate);
+    public GiftCertificateDTO save(@RequestBody @Valid GiftCertificate giftCertificate,
+                                   @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
+        return giftCertificateService.save(giftCertificate, saveToCommitLog);
     }
 
     /**
@@ -109,7 +110,7 @@ public class GiftCertificateController {
      * @param id уникальный идентификатор подарочного сертификата
      * @return статус 200, если удаление произведено успешно
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") int id) {
         giftCertificateService.delete(id);
         return ResponseEntity.ok("Gift certificate deleted successfully");

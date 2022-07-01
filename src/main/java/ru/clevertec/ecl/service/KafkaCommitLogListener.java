@@ -10,8 +10,12 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.clevertec.ecl.dto.CommitLogDTO;
+import ru.clevertec.ecl.dto.GiftCertificateDTO;
+import ru.clevertec.ecl.dto.TagDTO;
 import ru.clevertec.ecl.dto.TypeObject;
 import ru.clevertec.ecl.entty.GiftCertificate;
+import ru.clevertec.ecl.entty.Tag;
+import ru.clevertec.ecl.entty.User;
 
 @Slf4j
 @Service
@@ -24,7 +28,6 @@ public class KafkaCommitLogListener {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    //todo нужно ли вызывать этот метод? как часто он срабатывает? - спринг сам отслеживает. кто подписан на евент
     /**
      * считывает из топика (очереди)
      *
@@ -34,11 +37,68 @@ public class KafkaCommitLogListener {
     @KafkaListener(topics = "${kafka.commit-log-topic}", autoStartup = "${kafka.auto-startup}")
     public void commitLogListener(CommitLogDTO commitLog) {
         log.info(">>> KafkaCommitLogListener.commitLogListener commitLogDTO: {}", commitLog);
-        if (HttpMethod.POST.equals(commitLog.getMethod()) && TypeObject.GIFT.equals(commitLog.getTypeObject())){
-            restTemplate.postForObject(String.format(commitLog.getUrl(), localPort),
-                    objectMapper.readValue(commitLog.getBody(), GiftCertificate.class), Object.class);
+        if (!localPort.equals(commitLog.getPortInitiatorLog())) {
+            if (TypeObject.GIFT.equals(commitLog.getTypeObject())) {
+                giftCertificateProcess(commitLog);
+            } else if (TypeObject.TAG.equals(commitLog.getTypeObject())) {
+                tagProcess(commitLog);
+            } else if (TypeObject.USER.equals(commitLog.getTypeObject())) {
+                userProcess(commitLog);
+            }
         }
+    }
 
+    @SneakyThrows
+    private void giftCertificateProcess(CommitLogDTO commitLog) {
+        if (HttpMethod.POST.equals(commitLog.getMethod())) {
+            log.info("before: HttpMethod:POST, commitLog: {}", commitLog);
+            final Object object = restTemplate.postForObject(String.format(commitLog.getUrl(), localPort),
+                    objectMapper.readValue(commitLog.getBody(), GiftCertificate.class), Object.class);
+            log.info("after: HttpMethod:POST, object: {}", object);
+        } else if (HttpMethod.PUT.equals(commitLog.getMethod())) {
+            log.info("before: HttpMethod:PUT, commitLog: {}", commitLog);
+            restTemplate.put(String.format(commitLog.getUrl(), localPort, commitLog.getId()),
+                    objectMapper.readValue(commitLog.getBody(), GiftCertificateDTO.class));
+            log.info("after: HttpMethod:PUT");
+        } else if (HttpMethod.DELETE.equals(commitLog.getMethod())) {
+            log.info("before: HttpMethod:DELETE");
+            restTemplate.delete(String.format(commitLog.getUrl(), localPort, commitLog.getId()));
+            log.info("after: HttpMethod:DELETE");
+        }
+    }
+
+
+    @SneakyThrows
+    private void tagProcess(CommitLogDTO commitLog) {
+        if (HttpMethod.POST.equals(commitLog.getMethod())) {
+            log.info("before: HttpMethod:POST, commitLog: {}", commitLog);
+            final Object object = restTemplate.postForObject(String.format(commitLog.getUrl(), localPort),
+                    objectMapper.readValue(commitLog.getBody(), Tag.class), Object.class);
+            log.info("after: HttpMethod:POST, object: {}", object);
+        } else if (HttpMethod.PUT.equals(commitLog.getMethod())) {
+            log.info("before: HttpMethod:PUT, commitLog: {}", commitLog);
+            restTemplate.put(String.format(commitLog.getUrl(), localPort, commitLog.getId()),
+                    objectMapper.readValue(commitLog.getBody(), TagDTO.class));
+            log.info("after: HttpMethod:PUT");
+        } else if (HttpMethod.DELETE.equals(commitLog.getMethod())) {
+            log.info("before: HttpMethod:DELETE");
+            restTemplate.delete(String.format(commitLog.getUrl(), localPort, commitLog.getId()));
+            log.info("after: HttpMethod:DELETE");
+        }
+    }
+
+    @SneakyThrows
+    private void userProcess(CommitLogDTO commitLog) {
+        if (HttpMethod.POST.equals(commitLog.getMethod())) {
+            log.info("before: HttpMethod:POST, commitLog: {}", commitLog);
+            final Object object = restTemplate.postForObject(String.format(commitLog.getUrl(), localPort),
+                    objectMapper.readValue(commitLog.getBody(), User.class), Object.class);
+            log.info("after: HttpMethod:POST, object: {}", object);
+        } else if (HttpMethod.DELETE.equals(commitLog.getMethod())) {
+            log.info("before: HttpMethod:DELETE");
+            restTemplate.delete(String.format(commitLog.getUrl(), localPort, commitLog.getId()));
+            log.info("after: HttpMethod:DELETE");
+        }
     }
 
 }

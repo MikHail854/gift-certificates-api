@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -20,7 +21,6 @@ import ru.clevertec.ecl.repositories.GiftCertificateRepository;
 import ru.clevertec.ecl.repositories.TagRepository;
 import ru.clevertec.ecl.service.CommitLogService;
 import ru.clevertec.ecl.service.GiftCertificateService;
-import ru.clevertec.ecl.service.KafkaCommitLogListener;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -30,14 +30,16 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static ru.clevertec.ecl.constants.Constants.EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT;
-import static ru.clevertec.ecl.constants.Constants.URL_SAVE_GIFT_CERTIFICATE;
+import static ru.clevertec.ecl.constants.Constants.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class GiftCertificateServiceImpl implements GiftCertificateService {
+
+    @Value("${server.port}")
+    private final String localPort;
 
     private final ObjectMapper mapper;
     private final TagMapper tagMapper;
@@ -92,14 +94,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             }
             giftCertificate.getTags().addAll(giftCertificateFromDB.getTags());
             giftCertificate.setCreateDate(giftCertificateFromDB.getCreateDate());
-
         } else {
             giftCertificate.setCreateDate(LocalDateTime.now());
         }
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
         final GiftCertificateDTO saved = giftCertificateMapper.toGiftCertificateDTO(giftCertificateRepository.saveAndFlush(giftCertificate));
         log.info("successful saving of the gift certificate in the database - {}", saved);
-        if (Objects.nonNull(saveToCommitLog) && saveToCommitLog) {
+        if (Objects.isNull(saveToCommitLog) || saveToCommitLog) {
             sendToCommitLogSave(giftCertificate);
         }
         return saved;
@@ -108,17 +109,17 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @SneakyThrows
     private void sendToCommitLogSave(GiftCertificate giftCertificate) {
         commitLogService.sendToCommitLog(CommitLogDTO.builder()
-                .id(giftCertificate.getId())
-                .url(URL_SAVE_GIFT_CERTIFICATE)
+                .url(URL_CREATE_GIFT_CERTIFICATE)
                 .method(HttpMethod.POST)
                 .body(mapper.writeValueAsString(giftCertificate))
                 .typeObject(TypeObject.GIFT)
+                .portInitiatorLog(localPort)
                 .build());
     }
 
     @Override
     @Transactional
-    public GiftCertificateDTO update(int id, GiftCertificateDTO dto) {
+    public GiftCertificateDTO update(int id, GiftCertificateDTO dto, Boolean saveToCommitLog) {
         log.info("gift certificate for updating in the database - {}", dto);
         final GiftCertificateDTO updated = giftCertificateRepository.findById(id)
                 .map(giftCertificate -> updateGiftCertificateFromGiftCertificateDTO(giftCertificate, dto))
@@ -126,12 +127,27 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 .map(giftCertificateMapper::toGiftCertificateDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "gift certificate", id)));
         log.info("successful update of the gift certificate in the database - {}", updated);
+        if (Objects.isNull(saveToCommitLog) || saveToCommitLog) {
+            sendToCommitLogUpdate(id, dto);
+        }
         return updated;
+    }
+
+    @SneakyThrows
+    private void sendToCommitLogUpdate(int id, GiftCertificateDTO giftCertificate) {
+        commitLogService.sendToCommitLog(CommitLogDTO.builder()
+                .id(id)
+                .url(URL_UPDATE_GIFT_CERTIFICATE)
+                .method(HttpMethod.PUT)
+                .body(mapper.writeValueAsString(giftCertificate))
+                .typeObject(TypeObject.GIFT)
+                .portInitiatorLog(localPort)
+                .build());
     }
 
     @Override
     @Transactional
-    public GiftCertificateDTO updatePrice(int id, GiftCertificatePriceDTO dto) {
+    public GiftCertificateDTO updatePrice(int id, GiftCertificatePriceDTO dto, Boolean saveToCommitLog) {
         log.info("price for updating in the database - {}", dto);
         final GiftCertificateDTO updated = giftCertificateRepository.findById(id)
                 .map(giftCertificate -> updateGiftCertificatePrice(giftCertificate, dto))
@@ -139,12 +155,27 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 .map(giftCertificateMapper::toGiftCertificateDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "gift certificate", id)));
         log.info("successful update of the gift certificate price in the database - {}", updated);
+        if (Objects.isNull(saveToCommitLog) || saveToCommitLog) {
+            sendToCommitLogUpdatePrice(id, dto);
+        }
         return updated;
+    }
+
+    @SneakyThrows
+    private void sendToCommitLogUpdatePrice(int id, GiftCertificatePriceDTO giftCertificatePrice) {
+        commitLogService.sendToCommitLog(CommitLogDTO.builder()
+                .id(id)
+                .url(URL_UPDATE_PRICE_GIFT_CERTIFICATE)
+                .method(HttpMethod.PUT)
+                .body(mapper.writeValueAsString(giftCertificatePrice))
+                .typeObject(TypeObject.GIFT)
+                .portInitiatorLog(localPort)
+                .build());
     }
 
     @Override
     @Transactional
-    public GiftCertificateDTO updateDuration(int id, GiftCertificateDurationDTO dto) {
+    public GiftCertificateDTO updateDuration(int id, GiftCertificateDurationDTO dto, Boolean saveToCommitLog) {
         log.info("duration for updating in the database - {}", dto);
         final GiftCertificateDTO updated = giftCertificateRepository.findById(id)
                 .map(giftCertificate -> updateGiftCertificateDuration(giftCertificate, dto))
@@ -152,14 +183,42 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 .map(giftCertificateMapper::toGiftCertificateDTO)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "gift certificate", id)));
         log.info("successful update of the gift certificate duration in the database - {}", updated);
+        if (Objects.isNull(saveToCommitLog) || saveToCommitLog) {
+            sendToCommitLogUpdateDuration(id, dto);
+        }
         return updated;
+    }
+
+    @SneakyThrows
+    private void sendToCommitLogUpdateDuration(int id, GiftCertificateDurationDTO giftCertificateDuration) {
+        commitLogService.sendToCommitLog(CommitLogDTO.builder()
+                .id(id)
+                .url(URL_UPDATE_DURATION_GIFT_CERTIFICATE)
+                .method(HttpMethod.PUT)
+                .body(mapper.writeValueAsString(giftCertificateDuration))
+                .typeObject(TypeObject.GIFT)
+                .portInitiatorLog(localPort)
+                .build());
     }
 
     @Override
     @Transactional
-    public void delete(int id) {
+    public void delete(int id, Boolean saveToCommitLog) {
         giftCertificateRepository.deleteById(id);
         log.info("gift certificate with id = {} deleted successfully", id);
+        if (Objects.isNull(saveToCommitLog) || saveToCommitLog) {
+            sendToCommitLogDelete(id);
+        }
+    }
+
+    private void sendToCommitLogDelete(int id) {
+        commitLogService.sendToCommitLog(CommitLogDTO.builder()
+                .id(id)
+                .url(URL_DELETE_GIFT_CERTIFICATE)
+                .method(HttpMethod.DELETE)
+                .typeObject(TypeObject.GIFT)
+                .portInitiatorLog(localPort)
+                .build());
     }
 
     @Override

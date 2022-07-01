@@ -18,13 +18,13 @@ public interface GiftCertificateService {
 
     GiftCertificateDTO save(GiftCertificate giftCertificate, Boolean saveToCommitLog);
 
-    GiftCertificateDTO update(int id, GiftCertificateDTO giftCertificateDTO);
+    GiftCertificateDTO update(int id, GiftCertificateDTO giftCertificateDTO, Boolean saveToCommitLog);
 
-    GiftCertificateDTO updatePrice(int id, GiftCertificatePriceDTO giftCertificatePriceAndDurationDTO);
+    GiftCertificateDTO updatePrice(int id, GiftCertificatePriceDTO giftCertificatePriceAndDurationDTO, Boolean saveToCommitLog);
 
-    GiftCertificateDTO updateDuration(int id, GiftCertificateDurationDTO giftCertificateDurationDTO);
+    GiftCertificateDTO updateDuration(int id, GiftCertificateDurationDTO giftCertificateDurationDTO, Boolean saveToCommitLog);
 
-    void delete(int id);
+    void delete(int id, Boolean saveToCommitLog);
 
     List<GiftCertificateDTO> findGiftCertificateByTagName(String tagName);
 

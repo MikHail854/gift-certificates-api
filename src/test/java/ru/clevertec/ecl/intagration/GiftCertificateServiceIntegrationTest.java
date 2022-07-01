@@ -132,7 +132,7 @@ public class GiftCertificateServiceIntegrationTest implements BaseIntegrationTes
     @DisplayName("the gift certificate will be updated if a tag with this id exists in the database")
     public void testUpdate() {
         final GiftCertificateDTO giftCertificateDTO = createGiftCertificateDTOObject();
-        final GiftCertificateDTO updated = giftCertificateService.update(1, giftCertificateDTO);
+        final GiftCertificateDTO updated = giftCertificateService.update(1, giftCertificateDTO, false);
         final GiftCertificateDTO byIdFromDB = giftCertificateService.findById(updated.getId());
         assertEquals("someNameCertificateDTO", byIdFromDB.getName());
     }
@@ -141,24 +141,24 @@ public class GiftCertificateServiceIntegrationTest implements BaseIntegrationTes
     @DisplayName("updating a gift certificate whose ID is not in the database throws an Entity Not Found Exception")
     public void testUpdateThrowsEntityNotFoundException() {
         final GiftCertificateDTO giftCertificateDTO = createGiftCertificateDTOObject();
-        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.update(999, giftCertificateDTO));
+        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.update(999, giftCertificateDTO, false));
     }
 
     @Test
     public void testUpdateWithNegativeIdThrowsEntityNotFoundException() {
         final GiftCertificateDTO giftCertificateDTO = createGiftCertificateDTOObject();
-        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.update(-999, giftCertificateDTO));
+        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.update(-999, giftCertificateDTO, false));
     }
 
     @Test
     @DisplayName("the gift certificate will be deleted if a tag with this id exists in the database")
     public void testDelete() {
-        assertDoesNotThrow(() -> giftCertificateService.delete(1));
+        assertDoesNotThrow(() -> giftCertificateService.delete(1, false));
     }
 
     @Test
     public void testDeleteThrowsEmptyResultDataAccessException() {
-        assertThrows(EmptyResultDataAccessException.class, () -> giftCertificateService.delete(100));
+        assertThrows(EmptyResultDataAccessException.class, () -> giftCertificateService.delete(100, false));
     }
 
     @Test
@@ -166,7 +166,7 @@ public class GiftCertificateServiceIntegrationTest implements BaseIntegrationTes
         GiftCertificatePriceDTO giftCertificatePriceDTO = GiftCertificatePriceDTO.builder()
                 .price(999.98f)
                 .build();
-        final GiftCertificateDTO giftCertificateDTO = giftCertificateService.updatePrice(1, giftCertificatePriceDTO);
+        final GiftCertificateDTO giftCertificateDTO = giftCertificateService.updatePrice(1, giftCertificatePriceDTO, false);
         assertEquals(999.98f, giftCertificateDTO.getPrice());
     }
 
@@ -175,7 +175,7 @@ public class GiftCertificateServiceIntegrationTest implements BaseIntegrationTes
         GiftCertificatePriceDTO giftCertificatePriceDTO = GiftCertificatePriceDTO.builder()
                 .price(999.98f)
                 .build();
-        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.updatePrice(99, giftCertificatePriceDTO));
+        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.updatePrice(99, giftCertificatePriceDTO, false));
     }
 
     @Test
@@ -183,7 +183,7 @@ public class GiftCertificateServiceIntegrationTest implements BaseIntegrationTes
         GiftCertificateDurationDTO giftCertificateDurationDTO = GiftCertificateDurationDTO.builder()
                 .duration(999)
                 .build();
-        final GiftCertificateDTO giftCertificateDTO = giftCertificateService.updateDuration(1, giftCertificateDurationDTO);
+        final GiftCertificateDTO giftCertificateDTO = giftCertificateService.updateDuration(1, giftCertificateDurationDTO, false);
         assertEquals(999,giftCertificateDTO.getDuration());
     }
 
@@ -192,7 +192,7 @@ public class GiftCertificateServiceIntegrationTest implements BaseIntegrationTes
         GiftCertificateDurationDTO giftCertificateDurationDTO = GiftCertificateDurationDTO.builder()
                 .duration(999)
                 .build();
-        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.updateDuration(99, giftCertificateDurationDTO));
+        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.updateDuration(99, giftCertificateDurationDTO, false));
     }
 
     private GiftCertificate createGiftCertificateObject() {

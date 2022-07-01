@@ -29,7 +29,7 @@ public class GiftCertificateController {
      */
     @GetMapping
     @ResponseBody
-    public PageResponse<GiftCertificateDTO> findAll(GiftCertificateFilter filter, Pageable pageable) {
+    public PageResponse<GiftCertificateDTO> getAllGiftCertificates(GiftCertificateFilter filter, Pageable pageable) {
         final Page<GiftCertificateDTO> page = giftCertificateService.findAll(filter, pageable);
         return PageResponse.of(page);
     }
@@ -41,7 +41,7 @@ public class GiftCertificateController {
      * @return подарояный сертификат
      */
     @GetMapping("/{id}")
-    public GiftCertificateDTO findById(@PathVariable("id") int id) {
+    public GiftCertificateDTO getGiftCertificateById(@PathVariable("id") int id) {
         return giftCertificateService.findById(id);
     }
 
@@ -52,18 +52,18 @@ public class GiftCertificateController {
      * @return список подарочных сертификатов
      */
     @GetMapping("/tags")
-    public List<GiftCertificateDTO> findByTagName(@RequestParam("tag_name") String tagName) {
+    public List<GiftCertificateDTO> findGiftCertificateByTagName(@RequestParam("tag_name") String tagName) {
         return giftCertificateService.findGiftCertificateByTagName(tagName);
     }
 
     /**
-     * Сохранение подарочного сертификата
+     * Создание нового подарочного сертификата
      *
      * @param giftCertificate подарочный сертификат
      * @return сохраненный подарочный сертификат
      */
-    @PostMapping("/save")
-    public GiftCertificateDTO save(@RequestBody @Valid GiftCertificate giftCertificate,
+    @PostMapping("/create")
+    public GiftCertificateDTO createGiftCertificate(@RequestBody @Valid GiftCertificate giftCertificate,
                                    @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
         return giftCertificateService.save(giftCertificate, saveToCommitLog);
     }
@@ -76,8 +76,9 @@ public class GiftCertificateController {
      * @return обновленный подарочный сертификат
      */
     @PutMapping("/update/{id}")
-    public GiftCertificateDTO update(@PathVariable("id") int id, @RequestBody @Valid GiftCertificateDTO dto) {
-        return giftCertificateService.update(id, dto);
+    public GiftCertificateDTO updateGiftCertificate(@PathVariable("id") int id, @RequestBody @Valid GiftCertificateDTO dto,
+                                     @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
+        return giftCertificateService.update(id, dto, saveToCommitLog);
     }
 
     /**
@@ -88,8 +89,9 @@ public class GiftCertificateController {
      * @return обновленный подарочный сертификат
      */
     @PutMapping("/update/{id}/price")
-    public GiftCertificateDTO updatePrice(@PathVariable("id") int id, @RequestBody @Valid GiftCertificatePriceDTO dto) {
-        return giftCertificateService.updatePrice(id, dto);
+    public GiftCertificateDTO updateGiftCertificatePrice(@PathVariable("id") int id, @RequestBody @Valid GiftCertificatePriceDTO dto,
+                                          @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
+        return giftCertificateService.updatePrice(id, dto, saveToCommitLog);
     }
 
     /**
@@ -100,8 +102,9 @@ public class GiftCertificateController {
      * @return обновленный подарочный сертификат
      */
     @PutMapping("/update/{id}/duration")
-    public GiftCertificateDTO updateDuration(@PathVariable("id") int id, @RequestBody @Valid GiftCertificateDurationDTO dto) {
-        return giftCertificateService.updateDuration(id, dto);
+    public GiftCertificateDTO updateGiftCertificateDuration(@PathVariable("id") int id, @RequestBody @Valid GiftCertificateDurationDTO dto,
+                                             @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
+        return giftCertificateService.updateDuration(id, dto, saveToCommitLog);
     }
 
     /**
@@ -111,8 +114,9 @@ public class GiftCertificateController {
      * @return статус 200, если удаление произведено успешно
      */
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") int id) {
-        giftCertificateService.delete(id);
+    public ResponseEntity<?> deleteGiftCertificate(@PathVariable("id") int id,
+                                    @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
+        giftCertificateService.delete(id, saveToCommitLog);
         return ResponseEntity.ok("Gift certificate deleted successfully");
     }
 

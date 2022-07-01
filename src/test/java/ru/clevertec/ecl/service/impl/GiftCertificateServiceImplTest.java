@@ -205,7 +205,7 @@ public class GiftCertificateServiceImplTest {
         when(giftCertificateRepository.saveAndFlush(giftCertificate)).thenReturn(giftCertificate);
         when(giftCertificateMapper.toGiftCertificateDTO(giftCertificate)).thenReturn(giftCertificateDTO);
 
-        assertEquals(giftCertificateDTO, giftCertificateService.update(id, giftCertificateDTO));
+        assertEquals(giftCertificateDTO, giftCertificateService.update(id, giftCertificateDTO, false));
     }
 
     @Test
@@ -213,12 +213,12 @@ public class GiftCertificateServiceImplTest {
         int id = 1;
         when(giftCertificateRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.update(id, createGiftCertificateDTOObject()));
+        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.update(id, createGiftCertificateDTOObject(), false));
     }
 
     @Test
     public void testDelete() {
-        assertDoesNotThrow(() -> giftCertificateService.delete(1));
+        assertDoesNotThrow(() -> giftCertificateService.delete(1, false));
     }
 
     @Test
@@ -236,7 +236,7 @@ public class GiftCertificateServiceImplTest {
                 .build();
         giftCertificateDTO.setPrice(123.45f);
 
-        assertEquals(giftCertificateDTO.getPrice(), giftCertificateService.updatePrice(id, price).getPrice());
+        assertEquals(giftCertificateDTO.getPrice(), giftCertificateService.updatePrice(id, price, false).getPrice());
     }
 
     @Test
@@ -248,7 +248,7 @@ public class GiftCertificateServiceImplTest {
                 .price(123.45f)
                 .build();
 
-        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.updatePrice(id, price));
+        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.updatePrice(id, price, false));
     }
 
     @Test
@@ -266,7 +266,7 @@ public class GiftCertificateServiceImplTest {
                 .build();
         giftCertificateDTO.setDuration(123);
 
-        assertEquals(giftCertificateDTO.getDuration(), giftCertificateService.updateDuration(id, duration).getDuration());
+        assertEquals(giftCertificateDTO.getDuration(), giftCertificateService.updateDuration(id, duration, false).getDuration());
     }
 
     @Test
@@ -278,7 +278,7 @@ public class GiftCertificateServiceImplTest {
                 .duration(123)
                 .build();
 
-        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.updateDuration(id, duration));
+        assertThrows(EntityNotFoundException.class, () -> giftCertificateService.updateDuration(id, duration, false));
     }
 
 

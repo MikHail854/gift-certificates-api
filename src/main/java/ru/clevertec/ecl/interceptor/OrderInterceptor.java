@@ -10,9 +10,11 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.util.ContentCachingRequestWrapper;
 import ru.clevertec.ecl.config.Cluster;
 import ru.clevertec.ecl.dto.OrderDTO;
 import ru.clevertec.ecl.dto.SequenceIdDTO;
+import ru.clevertec.ecl.wrapper.RequestWrapper;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static ru.clevertec.ecl.constants.Constants.URL_CREATE_ORDER_INTERCEPTOR;
 import static ru.clevertec.ecl.constants.Constants.URL_SEQUENCE_ORDERS;
 
 
@@ -57,16 +60,22 @@ public class OrderInterceptor implements HandlerInterceptor {
                 return false;
             }
         } else if (HttpMethod.POST.toString().equals(request.getMethod())) {
-            final Integer sequenceId = getSequenceId();
-            final boolean requiredServer = checkServer(request, sequenceId);
-            if (!requiredServer) {
-                final String newURL = getNewURL(request, sequenceId);
-                final OrderDTO orderDTO = restTemplate.postForObject(newURL, null, OrderDTO.class);
-                String json = mapper.writeValueAsString(orderDTO);
-                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-                response.getWriter().write(json);
-                return false;
+            final String saveToCommitLog = request.getParameter("save_to_commit_log");
+            if (Objects.isNull(saveToCommitLog)) {
+                final Integer sequenceId = getSequenceId();
+                final boolean requiredServer = checkServer(request, sequenceId);
+                if (!requiredServer) {
+                    ContentCachingRequestWrapper currentRequest = new ContentCachingRequestWrapper(request);
+                    final String inputJson = new RequestWrapper(currentRequest).getBodyString();
+                    final Object inputObject = mapper.readValue(inputJson, Object.class);
+                    final String newServerPort = getNewPort(sequenceId);
+                    final OrderDTO orderDTO = restTemplate.postForObject(String.format(URL_CREATE_ORDER_INTERCEPTOR, newServerPort), inputObject, OrderDTO.class);
+                    String json = mapper.writeValueAsString(orderDTO);
+                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+                    response.getWriter().write(json);
+                    return false;
+                }
             }
         }
 
@@ -92,7 +101,6 @@ public class OrderInterceptor implements HandlerInterceptor {
     }
 
     @SneakyThrows
-//    private String getNewURL(HttpServletRequest request, int id) throws NotFoundException {
     private String getNewURL(HttpServletRequest request, int id) {
         final StringBuffer requestURL = request.getRequestURL();
         final String newServerPort = getNewPort(id);
@@ -140,7 +148,7 @@ public class OrderInterceptor implements HandlerInterceptor {
         return maxSequenceId;
     }
 
-    private void setSequence(int maxSequenceId){
+    private void setSequence(int maxSequenceId) {
         cluster.getNodes().values()
                 .forEach(node -> node.getReplicas()
                         .forEach(replica -> restTemplate.put(buildUrlSequence(replica.getPort()), new SequenceIdDTO(maxSequenceId - 1))));
@@ -149,26 +157,5 @@ public class OrderInterceptor implements HandlerInterceptor {
     private String buildUrlSequence(String port) {
         return String.format(URL_SEQUENCE_ORDERS, port);
     }
-
-
-
-/*
-    @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-                           ModelAndView modelAndView) throws Exception {
-        log.info("Interceptor postHandle: запрошенный интерфейс запрошен (для рендеринга интерфейсного интерфейса) ...");
-    }
-
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
-            throws Exception {
-        int status = response.getStatus();
-        long startTime = Long.valueOf(request.getAttribute("startTime").toString());
-        long endTime = System.currentTimeMillis();
-
-
-        log.info("Interceptor afterCompletion: завершается весь процесс запроса (включая рендеринг внешнего интерфейса), " +
-                "время, необходимое для этого:" + (endTime - startTime) + " Код состояния:" + status);
-    }*/
 
 }

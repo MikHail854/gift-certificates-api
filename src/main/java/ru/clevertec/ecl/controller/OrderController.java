@@ -2,9 +2,12 @@ package ru.clevertec.ecl.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.clevertec.ecl.dto.InputDataOrderDTO;
 import ru.clevertec.ecl.dto.OrderDTO;
 import ru.clevertec.ecl.dto.OrderListDTO;
 import ru.clevertec.ecl.service.OrderService;
+
+import javax.validation.Valid;
 
 
 @RestController
@@ -17,13 +20,14 @@ public class OrderController {
     /**
      * Создание нового заказа
      *
-     * @param userId        уникальный идентификатор пользователя
-     * @param certificateId уникальный идентификатор подарочного сертификата
-     * @return созданный заказ
+     * @param inputDataOrder
+     * @param saveToCommitLog
+     * @return
      */
-    @PostMapping
-    public OrderDTO createOrder(@RequestParam("user_id") int userId, @RequestParam("certificate_id") int certificateId) {
-        return orderService.createOrder(userId, certificateId);
+    @PostMapping("/create")
+    public OrderDTO createOrder(@RequestBody @Valid InputDataOrderDTO inputDataOrder,
+                                @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
+        return orderService.createOrder(inputDataOrder, saveToCommitLog);
     }
 
     /**

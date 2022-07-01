@@ -9,13 +9,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import ru.clevertec.ecl.dto.CommitLogDTO;
-import ru.clevertec.ecl.dto.GiftCertificateDTO;
-import ru.clevertec.ecl.dto.TagDTO;
-import ru.clevertec.ecl.dto.TypeObject;
+import ru.clevertec.ecl.config.Cluster;
+import ru.clevertec.ecl.dto.*;
 import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.entty.Tag;
 import ru.clevertec.ecl.entty.User;
+
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -25,8 +25,27 @@ public class KafkaCommitLogListener {
     @Value("${server.port}")
     private final String localPort;
 
+    private final Cluster cluster;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+
+    @SneakyThrows
+    @KafkaListener(topics = "${kafka.order-commit-log-topic}", autoStartup = "${kafka.auto-startup}")
+    public void commitLogListenerOrder(CommitLogDTO commitLog) {
+        if (!localPort.equals(commitLog.getPortInitiatorLog())
+                && HttpMethod.POST.equals(commitLog.getMethod())
+                && checkServer(commitLog.getId())) {
+            restTemplate.postForObject(String.format(commitLog.getUrl(), localPort),
+                    objectMapper.readValue(commitLog.getBody(), InputDataOrderDTO.class), Object.class);
+        }
+    }
+
+    private boolean checkServer(Integer id) {
+        return Objects.nonNull(cluster.getNodes().get(id % cluster.getNodes().size()).getReplicas().stream()
+                .filter(replica -> localPort.equals(replica.getPort()))
+                .findFirst().orElse(null));
+    }
+
 
     /**
      * считывает из топика (очереди)

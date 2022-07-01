@@ -1,28 +1,33 @@
 package ru.clevertec.ecl.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.clevertec.ecl.repositories.GiftCertificateRepository;
-import ru.clevertec.ecl.repositories.OrderRepository;
-import ru.clevertec.ecl.repositories.UserRepository;
-import ru.clevertec.ecl.dto.OrderDTO;
-import ru.clevertec.ecl.dto.OrderListDTO;
+import ru.clevertec.ecl.dto.*;
 import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.entty.Order;
 import ru.clevertec.ecl.entty.User;
 import ru.clevertec.ecl.mapper.OrderMapper;
+import ru.clevertec.ecl.repositories.GiftCertificateRepository;
+import ru.clevertec.ecl.repositories.OrderRepository;
+import ru.clevertec.ecl.repositories.UserRepository;
+import ru.clevertec.ecl.service.CommitLogService;
 import ru.clevertec.ecl.service.OrderService;
 
 import javax.persistence.EntityNotFoundException;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static ru.clevertec.ecl.constants.Constants.*;
+import static ru.clevertec.ecl.constants.Constants.EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT;
+import static ru.clevertec.ecl.constants.Constants.URL_CREATE_ORDER;
 
 @Slf4j
 @Service
@@ -30,19 +35,24 @@ import static ru.clevertec.ecl.constants.Constants.*;
 @Transactional(readOnly = true)
 public class OrderServiceImpl implements OrderService {
 
-    private final GiftCertificateRepository giftCertificateRepository;
-    private final OrderRepository orderRepository;
-    private final UserRepository userRepository;
+    @Value("${server.port}")
+    private final String localPort;
+
+    private final ObjectMapper mapper;
     private final OrderMapper orderMapper;
+    private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
+    private final CommitLogService commitLogService;
+    private final GiftCertificateRepository giftCertificateRepository;
 
     @Override
     @Transactional
-    public OrderDTO createOrder(int userId, int certificateId) {
-        final User user = userRepository.findById(userId).orElseThrow(
-                () -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "user", userId)));
+    public OrderDTO createOrder(InputDataOrderDTO inputDataOrder, Boolean saveToCommitLog) {
+        final User user = userRepository.findById(inputDataOrder.getUserId()).orElseThrow(
+                () -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "user", inputDataOrder.getUserId())));
 
-        final GiftCertificate giftCertificate = giftCertificateRepository.findById(certificateId).orElseThrow(
-                () -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "giftCertificate", certificateId)));
+        final GiftCertificate giftCertificate = giftCertificateRepository.findById(inputDataOrder.getCertificateId()).orElseThrow(
+                () -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "giftCertificate", inputDataOrder.getCertificateId())));
 
         final Order order = Order.builder()
                 .certificateId(giftCertificate.getId())
@@ -54,7 +64,22 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.saveAndFlush(order);
         final OrderDTO orderDTO = orderMapper.toOrderDTO(order);
         log.info("create order: {}", orderDTO);
+        if (Objects.isNull(saveToCommitLog) || saveToCommitLog) {
+            sendToCommitLogSave(orderDTO.getId(), inputDataOrder);
+        }
         return orderDTO;
+    }
+
+    @SneakyThrows
+    private void sendToCommitLogSave(Integer id, InputDataOrderDTO inputDataOrder) {
+        commitLogService.sendOrderToCommitLog(CommitLogDTO.builder()
+                .id(id)
+                .url(URL_CREATE_ORDER)
+                .method(HttpMethod.POST)
+                .body(mapper.writeValueAsString(inputDataOrder))
+                .typeObject(TypeObject.ORDER)
+                .portInitiatorLog(localPort)
+                .build());
     }
 
     @Override

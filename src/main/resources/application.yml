@@ -39,12 +39,12 @@ config:
 
 consumer:
   topic: "commit_log"
-#  group: "iconfig_group"
+  order-topic: "order_commit_log"
 
 kafka:
   auto-startup: true
   commit-log-topic: ${consumer.topic}
-#  group-id: ${consumer.group}
+  order-commit-log-topic: ${consumer.order-topic}
   group-id: ${PORT}
   offset-reset: "earliest"
 

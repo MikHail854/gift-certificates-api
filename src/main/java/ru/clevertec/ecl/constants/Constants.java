@@ -30,4 +30,7 @@ public class Constants {
     public static final String URL_CREATE_USER = "http://localhost:%s/users/create?save_to_commit_log=false";
     public static final String URL_DELETE_USER = "http://localhost:%s/users/delete/%s?save_to_commit_log=false";
 
+    public static final String URL_CREATE_ORDER = "http://localhost:%s/orders/create?save_to_commit_log=false";
+    public static final String URL_CREATE_ORDER_INTERCEPTOR = "http://localhost:%s/orders/create?save_to_commit_log=true";
+
 }

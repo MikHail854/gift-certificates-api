@@ -42,7 +42,7 @@ public class TagServiceIntegrationTest implements BaseIntegrationTest {
         Tag tag = Tag.builder()
                 .name("someName")
                 .build();
-        final TagDTO saved = tagService.save(tag);
+        final TagDTO saved = tagService.save(tag, false);
         assertDoesNotThrow(() -> tagService.findById(saved.getId()));
     }
 
@@ -52,7 +52,7 @@ public class TagServiceIntegrationTest implements BaseIntegrationTest {
         TagDTO tagDTO = TagDTO.builder()
                 .name("new name")
                 .build();
-        final TagDTO updated = tagService.update(1, tagDTO);
+        final TagDTO updated = tagService.update(1, tagDTO, false);
         final TagDTO byIdFromDB = tagService.findById(updated.getId());
         assertEquals("new name", byIdFromDB.getName());
     }
@@ -63,7 +63,7 @@ public class TagServiceIntegrationTest implements BaseIntegrationTest {
         TagDTO tagDTO = TagDTO.builder()
                 .name("someName")
                 .build();
-        assertThrows(EntityNotFoundException.class, () -> tagService.update(999, tagDTO));
+        assertThrows(EntityNotFoundException.class, () -> tagService.update(999, tagDTO, false));
     }
 
     @Test
@@ -71,18 +71,18 @@ public class TagServiceIntegrationTest implements BaseIntegrationTest {
         TagDTO tagDTO = TagDTO.builder()
                 .name("someName")
                 .build();
-        assertThrows(EntityNotFoundException.class, () -> tagService.update(-999, tagDTO));
+        assertThrows(EntityNotFoundException.class, () -> tagService.update(-999, tagDTO, false));
     }
 
     @Test
     @DisplayName("the tag will be deleted if a tag with this id exists in the database")
     public void testDelete() {
-        assertDoesNotThrow(() -> tagService.delete(1));
+        assertDoesNotThrow(() -> tagService.delete(1, false));
     }
 
     @Test
     public void testDeleteThrowsEmptyResultDataAccessException() {
-        assertThrows(EmptyResultDataAccessException.class, () -> tagService.delete(100));
+        assertThrows(EmptyResultDataAccessException.class, () -> tagService.delete(100, false));
     }
 
     @Test

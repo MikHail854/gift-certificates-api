@@ -80,7 +80,7 @@ public class TagServiceImplTest {
 
         when(tagMapper.toTagDTO(tagRepository.save(tag))).thenReturn(tagDTO);
 
-        assertEquals(tagDTO, tagService.save(tag));
+        assertEquals(tagDTO, tagService.save(tag, false));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class TagServiceImplTest {
         when(tagRepository.findById(1)).thenReturn(Optional.of(tag));
         when(tagMapper.toTagDTO(tag)).thenReturn(tagDTO);
 
-        assertEquals(tagDTO, tagService.update(1, tagDTO));
+        assertEquals(tagDTO, tagService.update(1, tagDTO, false));
     }
 
     @Test
@@ -100,12 +100,12 @@ public class TagServiceImplTest {
         final TagDTO tagDTO = createTagDTOObject();
         when(tagRepository.findById(1)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> tagService.update(1, tagDTO));
+        assertThrows(EntityNotFoundException.class, () -> tagService.update(1, tagDTO, false));
     }
 
     @Test
     public void testDelete() {
-        assertDoesNotThrow(() -> tagService.delete(1));
+        assertDoesNotThrow(() -> tagService.delete(1, false));
     }
 
     @Test

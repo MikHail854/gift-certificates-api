@@ -26,7 +26,7 @@ public class TagController {
      * @return все найденные теги
      */
     @GetMapping
-    public PageResponse<TagDTO> fidAll(Pageable pageable) {
+    public PageResponse<TagDTO> getAllTags(Pageable pageable) {
         final Page<TagDTO> page = tagService.findAll(pageable);
         return PageResponse.of(page);
     }
@@ -38,19 +38,20 @@ public class TagController {
      * @return тег
      */
     @GetMapping("/{id}")
-    public TagDTO getById(@PathVariable("id") int id) {
+    public TagDTO getTagById(@PathVariable("id") int id) {
         return tagService.findById(id);
     }
 
     /**
-     * Сохранение тега
+     * Создание нового тега
      *
      * @param tag тег
      * @return сохраненный тег
      */
-    @PostMapping("/save")
-    public TagDTO save(@RequestBody @Valid Tag tag) {
-        return tagService.save(tag);
+    @PostMapping("/create")
+    public TagDTO createTag(@RequestBody @Valid Tag tag,
+                       @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
+        return tagService.save(tag, saveToCommitLog);
     }
 
     /**
@@ -61,8 +62,9 @@ public class TagController {
      * @return обновленный тег
      */
     @PutMapping("/update/{id}")
-    public TagDTO update(@PathVariable("id") int id, @RequestBody @Valid TagDTO tag) {
-        return tagService.update(id, tag);
+    public TagDTO updateTag(@PathVariable("id") int id, @RequestBody @Valid TagDTO tag,
+                         @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
+        return tagService.update(id, tag, saveToCommitLog);
     }
 
     /**
@@ -71,9 +73,10 @@ public class TagController {
      * @param id муникальный идентификатор тега
      * @return статус 200, если удаление произведено успешно
      */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") int id) {
-        tagService.delete(id);
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteTag(@PathVariable("id") int id,
+                                    @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
+        tagService.delete(id, saveToCommitLog);
         return ResponseEntity.ok("Tag deleted successfully");
     }
 

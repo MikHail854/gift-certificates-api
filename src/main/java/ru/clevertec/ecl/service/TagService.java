@@ -12,11 +12,11 @@ public interface TagService {
 
     TagDTO findById(int id);
 
-    TagDTO save(Tag tag);
+    TagDTO save(Tag tag, Boolean saveToCommitLog);
 
-    TagDTO update(int id, TagDTO tagDTO);
+    TagDTO update(int id, TagDTO tagDTO, Boolean saveToCommitLog);
 
-    void delete(int id);
+    void delete(int id, Boolean saveToCommitLog);
 
     TagDTO findTheMostWidelyUsedTag();
 

@@ -20,9 +20,9 @@ public class OrderController {
     /**
      * Создание нового заказа
      *
-     * @param inputDataOrder
-     * @param saveToCommitLog
-     * @return
+     * @param inputDataOrder  данные для создания заказа
+     * @param saveToCommitLog флаг отвечающий за сохранние сообщения в брокер сообщений
+     * @return созданный заказ
      */
     @PostMapping("/create")
     public OrderDTO createOrder(@RequestBody @Valid InputDataOrderDTO inputDataOrder,

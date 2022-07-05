@@ -87,9 +87,8 @@ public class OrderInterceptor implements HandlerInterceptor {
     private boolean checkServer(HttpServletRequest request, Integer id) {
         final int localPort = request.getLocalPort();
 
-        return Objects.nonNull(cluster.getNodes().get(id % cluster.getNodes().size()).getReplicas().stream()
-                .filter(replica -> Integer.parseInt(replica.getPort()) == localPort)
-                .findFirst().orElse(null));
+        return cluster.getNodes().get(id % cluster.getNodes().size()).getReplicas().stream()
+                .anyMatch(replica -> Integer.parseInt(replica.getPort()) == localPort);
     }
 
     private String getNewPort(int id) {

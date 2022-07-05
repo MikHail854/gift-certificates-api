@@ -1,9 +1,3 @@
-CREATE TABLE gift_certificate_tag
-(
-    gift_certificate_id INT,
-    tag_id              INT
-);
-
 CREATE TABLE gift_certificate
 (
     id               SERIAL UNIQUE NOT NULL,
@@ -23,6 +17,13 @@ CREATE TABLE tag
     PRIMARY KEY (id)
 );
 
+CREATE TABLE gift_certificate_tag
+(
+    gift_certificate_id BIGINT REFERENCES gift_certificate (id) ON DELETE CASCADE,
+    tag_id              BIGINT REFERENCES tag (id) ON DELETE CASCADE,
+    PRIMARY KEY (gift_certificate_id, tag_id)
+);
+
 CREATE TABLE user_data
 (
     id         SERIAL UNIQUE NOT NULL,
@@ -40,16 +41,3 @@ CREATE TABLE order_data
     FOREIGN KEY (user_id) references user_data (id),
     FOREIGN KEY (certificate_id) references gift_certificate (id)
 );
-
-CREATE TABLE commit_log
-(
-    id   SERIAL UNIQUE NOT NULL,
-    url  VARCHAR(150),
-    body VARCHAR(500)
-);
-
-CREATE TABLE commit_log_lock
-(
-    id   SERIAL UNIQUE NOT NULL,
-    locked boolean
-)

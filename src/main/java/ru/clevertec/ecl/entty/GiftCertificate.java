@@ -21,13 +21,13 @@ public class GiftCertificate {
     private Integer id;
 
     @NotBlank
-    @Pattern(regexp = "^[-a-zA-Zа-яА-Я0-9]+(\\s+[-a-zA-Zа-яА-Я0-9])*$")
+    @Pattern(regexp = "^[-a-zA-Zа-яА-Я0-9 ]*$")
     @Size(min = 2, max = 25, message = "Name should be between 2 and 25 characters")
     @Column(name = "name")
     private String name;
 
     @NotBlank
-    @Pattern(regexp = "^[-a-zA-Zа-яА-Я0-9]+(\\s+[-a-zA-Zа-яА-Я0-9])*$") //todo описание не проходит с пробелами
+    @Pattern(regexp = "^[-a-zA-Zа-яА-Я0-9 ]*$")
     @Column(name = "description")
     private String description;
 

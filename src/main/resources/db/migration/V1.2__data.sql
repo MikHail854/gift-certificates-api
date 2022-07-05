@@ -49,18 +49,18 @@ INSERT INTO user_data (first_name, last_name)
 VALUES ('Dmitriy', 'Morozov');
 
 
-INSERT INTO order_data(user_id, certificate_id, price, purchase_date)
-VALUES (1, 2, 321, '2021-05-07T17:07:35.76');
-
-INSERT INTO order_data(user_id, certificate_id, price, purchase_date)
-VALUES (1, 1, 128.3, '2021-05-07T17:07:35.76');
-
-INSERT INTO order_data(user_id, certificate_id, price, purchase_date)
-VALUES (2, 2, 321, '2021-05-07T17:07:35.76');
-
-INSERT INTO order_data(user_id, certificate_id, price, purchase_date)
-VALUES (3, 2, 321, '2021-05-07T17:07:35.76');
-
-INSERT INTO order_data(user_id, certificate_id, price, purchase_date)
-VALUES (4, 3, 12345.3, '2021-05-07T17:07:35.76');
+-- INSERT INTO order_data(user_id, certificate_id, price, purchase_date)
+-- VALUES (1, 2, 321, '2021-05-07T17:07:35.76');
+--
+-- INSERT INTO order_data(user_id, certificate_id, price, purchase_date)
+-- VALUES (1, 1, 128.3, '2021-05-07T17:07:35.76');
+--
+-- INSERT INTO order_data(user_id, certificate_id, price, purchase_date)
+-- VALUES (2, 2, 321, '2021-05-07T17:07:35.76');
+--
+-- INSERT INTO order_data(user_id, certificate_id, price, purchase_date)
+-- VALUES (3, 2, 321, '2021-05-07T17:07:35.76');
+--
+-- INSERT INTO order_data(user_id, certificate_id, price, purchase_date)
+-- VALUES (4, 3, 12345.3, '2021-05-07T17:07:35.76');
 

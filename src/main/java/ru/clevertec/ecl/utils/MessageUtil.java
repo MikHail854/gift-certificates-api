@@ -12,7 +12,7 @@ public class MessageUtil {
 
     private final MessageSource messageSource;
 
-    public String getMessage(String code, Object... objects){
+    public String getMessage(String code, Object... objects) {
         return messageSource.getMessage(code, objects, Constants.LOCALE);
     }
 

@@ -3,7 +3,9 @@ package ru.clevertec.ecl.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 

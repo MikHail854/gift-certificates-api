@@ -23,7 +23,7 @@ public class SequenceOrderServiceImpl implements SequenceOrderService {
     @Override
     public void setSequence(Integer id) {
         final Integer sequence = jdbcTemplate.queryForObject(String.format(SET_VAL, id), Integer.class);
-        log.info("sequence = {} set for order_data_id_seq",sequence);
+        log.info("sequence = {} set for order_data_id_seq", sequence);
     }
 
 }

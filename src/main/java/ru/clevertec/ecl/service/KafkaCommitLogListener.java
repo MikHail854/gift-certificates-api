@@ -15,8 +15,6 @@ import ru.clevertec.ecl.entty.GiftCertificate;
 import ru.clevertec.ecl.entty.Tag;
 import ru.clevertec.ecl.entty.User;
 
-import java.util.Objects;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,6 +27,11 @@ public class KafkaCommitLogListener {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
+    /**
+     * считывает из топика (очереди) заказы
+     *
+     * @param commitLog
+     */
     @SneakyThrows
     @KafkaListener(topics = "${kafka.order-commit-log-topic}", autoStartup = "${kafka.auto-startup}")
     public void commitLogListenerOrder(CommitLogDTO commitLog) {
@@ -41,14 +44,13 @@ public class KafkaCommitLogListener {
     }
 
     private boolean checkServer(Integer id) {
-        return Objects.nonNull(cluster.getNodes().get(id % cluster.getNodes().size()).getReplicas().stream()
-                .filter(replica -> localPort.equals(replica.getPort()))
-                .findFirst().orElse(null));
+        return cluster.getNodes().get(id % cluster.getNodes().size()).getReplicas().stream()
+                .anyMatch(replica -> localPort.equals(replica.getPort()));
     }
 
 
     /**
-     * считывает из топика (очереди)
+     * считывает из топика (очереди) все сообщения, кроме заказов
      *
      * @param commitLog
      */

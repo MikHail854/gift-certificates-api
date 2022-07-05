@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import ru.clevertec.ecl.interceptor.CommitLogInterceptor;
-import ru.clevertec.ecl.interceptor.IntegrationDataInterceptor;
 import ru.clevertec.ecl.interceptor.OrderInterceptor;
 
 @Configuration
@@ -13,20 +11,11 @@ import ru.clevertec.ecl.interceptor.OrderInterceptor;
 public class InterceptorConfig implements WebMvcConfigurer {
 
     private final OrderInterceptor orderInterceptor;
-    private final CommitLogInterceptor commitLogInterceptor;
-    private final IntegrationDataInterceptor integrationDataInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(orderInterceptor)
                 .addPathPatterns("/orders/**");
-        registry.addInterceptor(integrationDataInterceptor)
-                .addPathPatterns("/*/update/**")
-                .addPathPatterns("/*/save");
-        registry.addInterceptor(commitLogInterceptor)
-                .addPathPatterns("/*/update/**")
-                .addPathPatterns("/*/save")
-                .addPathPatterns("/*/delete");
     }
 
 }

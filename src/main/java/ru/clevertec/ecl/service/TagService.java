@@ -1,9 +1,9 @@
 package ru.clevertec.ecl.service;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.clevertec.ecl.dto.TagDTO;
 import ru.clevertec.ecl.entty.Tag;
-import org.springframework.data.domain.Pageable;
 
 
 public interface TagService {

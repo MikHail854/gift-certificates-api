@@ -8,11 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @Slf4j
-public class ReplaceStreamFilter implements Filter{
+public class ReplaceStreamFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        log.info ("Инициализация StreamFilter ...");
+        log.info("Инициализация StreamFilter ...");
     }
 
     @Override
@@ -23,7 +23,7 @@ public class ReplaceStreamFilter implements Filter{
 
     @Override
     public void destroy() {
-        log.info ("Уничтожить StreamFilter ...");
+        log.info("Уничтожить StreamFilter ...");
     }
 
 

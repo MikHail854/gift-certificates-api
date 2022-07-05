@@ -50,7 +50,7 @@ public class TagController {
      */
     @PostMapping("/create")
     public TagDTO createTag(@RequestBody @Valid Tag tag,
-                       @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
+                            @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
         return tagService.save(tag, saveToCommitLog);
     }
 
@@ -63,7 +63,7 @@ public class TagController {
      */
     @PutMapping("/update/{id}")
     public TagDTO updateTag(@PathVariable("id") int id, @RequestBody @Valid TagDTO tag,
-                         @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
+                            @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
         return tagService.update(id, tag, saveToCommitLog);
     }
 
@@ -75,7 +75,7 @@ public class TagController {
      */
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteTag(@PathVariable("id") int id,
-                                    @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
+                                       @RequestParam(value = "save_to_commit_log", required = false) Boolean saveToCommitLog) {
         tagService.delete(id, saveToCommitLog);
         return ResponseEntity.ok("Tag deleted successfully");
     }

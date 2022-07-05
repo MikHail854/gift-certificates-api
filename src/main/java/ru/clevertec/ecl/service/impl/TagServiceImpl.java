@@ -59,14 +59,12 @@ public class TagServiceImpl implements TagService {
     @Transactional
     public TagDTO save(Tag tag, Boolean saveToCommitLog) {
         log.info("tag to save to database - {}", tag);
-        if (Objects.nonNull(tag.getId()) && tagRepository.findById(tag.getId()).isPresent()) {
-            final Tag tagFromDB = tagMapper.toTag(findById(tag.getId()));
-            if (!Objects.nonNull(tag.getGiftCertificates())) {
-                tag.setGiftCertificates(new ArrayList<>());
-            }
-            tag.getGiftCertificates().addAll(tagFromDB.getGiftCertificates());
-        }
-        final TagDTO saved = tagMapper.toTagDTO(tagRepository.save(tag));
+        final Tag saved = tagRepository.findByNameIgnoreCase(tag.getName()).orElseGet(() -> saveTag(tag, saveToCommitLog));
+        return tagMapper.toTagDTO(saved);
+    }
+
+    private Tag saveTag(Tag tag, Boolean saveToCommitLog) {
+        final Tag saved = tagRepository.save(tag);
         log.info("successful saving of the tag in the database - {}", saved);
         if (Objects.isNull(saveToCommitLog) || saveToCommitLog) {
             sendToCommitLogSave(tag);

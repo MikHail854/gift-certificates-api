@@ -9,8 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/health-check")
 public class HealthCheckController {
 
+    /**
+     * @return статус 200 если сервис запущен
+     */
     @GetMapping
-    public HttpStatus healthCheck(){
+    public HttpStatus healthCheck() {
         return HttpStatus.OK;
     }
 

@@ -2,6 +2,9 @@ package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -19,8 +22,20 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class HealthCheckServiceImpl implements HealthCheckService {
 
+    @Value("${server.port}")
+    private final String localPort;
+
     private final Cluster cluster;
     private final RestTemplate restTemplate;
+
+    @EventListener
+    public void handleContextRefreshEvent(ContextRefreshedEvent ctxStartEvt) throws InterruptedException {
+        cluster.getNodes().values().stream()
+                .flatMap(node -> node.getReplicas().stream()
+                        .filter(replica -> replica.getPort().equals(localPort)))
+                .forEach(replica -> replica.setIsAlive(true));
+        nodeHealthCheck();
+    }
 
     @Override
     @Scheduled(cron = "0 * * * * ?")

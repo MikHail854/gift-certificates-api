@@ -13,3 +13,53 @@ services:
       KAFKA_ADVERTISED_HOST_NAME: localhost
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_CREATE_TOPICS: "commit_log"
+
+  postgres1:
+    container_name: postgres_container1
+    image: postgres:14
+    environment:
+      POSTGRES_DB: "1001"
+      POSTGRES_USER: "bestuser"
+      POSTGRES_PASSWORD: "bestuser"
+#      PGDATA: /data/postgres # для чего это???
+    ports:
+      - "5432:5432"
+
+  my-application1:
+    image: gift-certificates-api:1.0-SNAPSHOT
+    depends_on:
+      - kafka
+      - postgres1
+    environment:
+      DB_HOST: postgres1:5432
+      PORT: 1001
+      KAFKA_HOST: kafka:9092
+    ports:
+      - "1001:1001"
+
+  postgres2:
+    container_name: postgres_container2
+    image: postgres:14
+    environment:
+      POSTGRES_DB: "1002"
+      POSTGRES_USER: "bestuser"
+      POSTGRES_PASSWORD: "bestuser"
+    #      PGDATA: /data/postgres # для чего это???
+    ports:
+      - "5434:5434"
+
+  my-application2:
+    image: gift-certificates-api:1.0-SNAPSHOT
+    depends_on:
+      - kafka
+      - postgres2
+    environment:
+      DB_HOST: postgres2:5434
+      PORT: 1002
+      KAFKA_HOST: kafka:9092
+    ports:
+      - "1002:1002"
+
+
+
+

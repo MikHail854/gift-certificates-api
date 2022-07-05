@@ -8,7 +8,8 @@ spring:
   #    hibernate:
   #      ddl-auto: create
   datasource:
-    url: jdbc:postgresql://localhost:5432/${PORT}?useSSL=true&serverTimezone=UTC
+#    url: jdbc:postgresql://localhost:5432/${PORT}?useSSL=true&serverTimezone=UTC
+    url: jdbc:postgresql://${DB_HOST:localhost:5432}/${PORT}?useSSL=true&serverTimezone=UTC
     username: bestuser
     password: bestuser
     driver-class-name: org.postgresql.Driver
@@ -48,5 +49,6 @@ kafka:
   group-id: ${PORT}
   offset-reset: "earliest"
 
-  bootstrap: "localhost:9092"
+#  bootstrap: "localhost:9092"
+  bootstrap: ${KAFKA_HOST:localhost:9092}
 

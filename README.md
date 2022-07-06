@@ -1,1 +1,1 @@
-# gift-sertificates-api
+# gift-сertificates-api

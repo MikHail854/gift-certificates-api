@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 
 @Data
@@ -29,6 +30,11 @@ public class User {
     @NotBlank
     @Column(name = "last_name")
     private String lastName;
+
+    @NotBlank
+    @Pattern(regexp = "^7[0-9]{10}$")
+    @Column(name = "phone")
+    private String phone;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "user_id")

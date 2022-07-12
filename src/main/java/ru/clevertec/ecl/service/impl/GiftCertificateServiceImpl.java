@@ -50,7 +50,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
 
     @Override
-    @Cacheable(value = "certificate", sync = true)
+    @Cacheable(value = GIFT_CERTIFICATE, sync = true)
     public Page<GiftCertificateDTO> findAll(GiftCertificateFilter filter, Pageable pageable) {
         ExampleMatcher matcher = ExampleMatcher.matchingAll()
                 .withMatcher("name", match -> match.contains().ignoreCase())
@@ -61,16 +61,16 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    @Cacheable(value = "certificate", sync = true)
+    @Cacheable(value = GIFT_CERTIFICATE, sync = true)
     public GiftCertificateDTO findById(int id) {
         final GiftCertificateDTO dto = giftCertificateRepository.findById(id).map(giftCertificateMapper::toGiftCertificateDTO)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "gift certificate", id)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, GIFT_CERTIFICATE, id)));
         log.info("found giftCertificate - {}", dto);
         return dto;
     }
 
     @Override
-    @Cacheable(value = "certificate", sync = true)
+    @Cacheable(value = GIFT_CERTIFICATE, sync = true)
     public List<GiftCertificateDTO> findGiftCertificateByTagName(String tagName) {
         final Optional<TagDTO> tagDTO = tagRepository.findByNameIgnoreCase(tagName).map(tagMapper::toTagDTO);
         if (tagDTO.isPresent()) {
@@ -125,7 +125,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 .map(giftCertificate -> updateGiftCertificateFromGiftCertificateDTO(giftCertificate, dto))
                 .map(giftCertificateRepository::saveAndFlush)
                 .map(giftCertificateMapper::toGiftCertificateDTO)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "gift certificate", id)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, GIFT_CERTIFICATE, id)));
         log.info("successful update of the gift certificate in the database - {}", updated);
         if (Objects.isNull(saveToCommitLog) || saveToCommitLog) {
             sendToCommitLogUpdate(id, dto);
@@ -153,7 +153,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 .map(giftCertificate -> updateGiftCertificatePrice(giftCertificate, dto))
                 .map(giftCertificateRepository::saveAndFlush)
                 .map(giftCertificateMapper::toGiftCertificateDTO)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "gift certificate", id)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, GIFT_CERTIFICATE, id)));
         log.info("successful update of the gift certificate price in the database - {}", updated);
         if (Objects.isNull(saveToCommitLog) || saveToCommitLog) {
             sendToCommitLogUpdatePrice(id, dto);
@@ -181,7 +181,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 .map(giftCertificate -> updateGiftCertificateDuration(giftCertificate, dto))
                 .map(giftCertificateRepository::saveAndFlush)
                 .map(giftCertificateMapper::toGiftCertificateDTO)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "gift certificate", id)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, GIFT_CERTIFICATE, id)));
         log.info("successful update of the gift certificate duration in the database - {}", updated);
         if (Objects.isNull(saveToCommitLog) || saveToCommitLog) {
             sendToCommitLogUpdateDuration(id, dto);

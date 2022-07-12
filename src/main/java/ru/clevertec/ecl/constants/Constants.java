@@ -33,4 +33,12 @@ public class Constants {
     public static final String URL_CREATE_ORDER = "http://localhost:%s/orders/create?save_to_commit_log=false";
     public static final String URL_CREATE_ORDER_INTERCEPTOR = "http://localhost:%s/orders/create?save_to_commit_log=true";
 
+    public static final String ORDER_SUCCESSFULLY_GENERATED = "Ваш заказ на сумму %s успешно сформирован";
+    public static final String SMS_SENDER = "TEST-SMS";
+
+    public static final String TAG = "tag";
+    public static final String USER = "user";
+    public static final String ORDER = "order";
+    public static final String GIFT_CERTIFICATE = "giftCertificate";
+
 }

@@ -21,7 +21,6 @@ import ru.clevertec.ecl.service.CommitLogService;
 import ru.clevertec.ecl.service.TagService;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
 import java.util.Objects;
 
 import static ru.clevertec.ecl.constants.Constants.*;
@@ -41,16 +40,16 @@ public class TagServiceImpl implements TagService {
     private final CommitLogService commitLogService;
 
     @Override
-    @Cacheable(value = "tag", sync = true)
+    @Cacheable(value = TAG, sync = true)
     public Page<TagDTO> findAll(Pageable pageable) {
         return tagRepository.findAll(pageable).map(tagMapper::toTagDTO);
     }
 
     @Override
-    @Cacheable(value = "tag", sync = true)
+    @Cacheable(value = TAG, sync = true)
     public TagDTO findById(int id) {
         final TagDTO dto = tagRepository.findById(id).map(tagMapper::toTagDTO)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "tag", id)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, TAG, id)));
         log.info("found tag - {}", dto);
         return dto;
     }
@@ -90,7 +89,7 @@ public class TagServiceImpl implements TagService {
         final TagDTO updated = tagRepository.findById(id)
                 .map(tag -> updateTagFromTagDTO(tag, tagDTO))
                 .map(tagMapper::toTagDTO)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "tag", id)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, TAG, id)));
         log.info("successful update of the tag in the database - {}", updated);
         if (Objects.isNull(saveToCommitLog) || saveToCommitLog) {
             sendToCommitLogUpdate(id, tagDTO);

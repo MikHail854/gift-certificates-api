@@ -28,7 +28,9 @@ CREATE TABLE user_data
 (
     id         SERIAL UNIQUE NOT NULL,
     first_name VARCHAR(30)   NOT NULL,
-    last_name  VARCHAR(30)   NOT NULL
+    last_name  VARCHAR(30)   NOT NULL,
+    phone      VARCHAR(11)   NOT NULL
+
 );
 
 CREATE TABLE order_data

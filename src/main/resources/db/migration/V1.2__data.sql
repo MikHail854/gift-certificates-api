@@ -36,17 +36,17 @@ INSERT INTO gift_certificate_tag(gift_certificate_id, tag_id)
 VALUES (3, 1);
 
 
-INSERT INTO user_data (first_name, last_name)
-VALUES ('Ivan', 'Ivanov');
+INSERT INTO user_data (first_name, last_name, phone)
+VALUES ('Ivan', 'Ivanov', '79130800712');
 
-INSERT INTO user_data (first_name, last_name)
-VALUES ( 'Petr', 'Petrov');
+INSERT INTO user_data (first_name, last_name, phone)
+VALUES ('Petr', 'Petrov', '79130800712');
 
-INSERT INTO user_data (first_name, last_name)
-VALUES ('Alex', 'Popov');
+INSERT INTO user_data (first_name, last_name, phone)
+VALUES ('Alex', 'Popov', '79130800712');
 
-INSERT INTO user_data (first_name, last_name)
-VALUES ('Dmitriy', 'Morozov');
+INSERT INTO user_data (first_name, last_name, phone)
+VALUES ('Dmitriy', 'Morozov', '79130800712');
 
 
 -- INSERT INTO order_data(user_id, certificate_id, price, purchase_date)

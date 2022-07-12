@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO findById(int userId) {
         final UserDTO userDTO = userRepository.findById(userId).map(userMapper::toUserDTO)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "user", userId)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, USER, userId)));
         log.info("found user - {}", userDTO);
         return userDTO;
     }

@@ -19,6 +19,7 @@ import ru.clevertec.ecl.repositories.OrderRepository;
 import ru.clevertec.ecl.repositories.UserRepository;
 import ru.clevertec.ecl.service.CommitLogService;
 import ru.clevertec.ecl.service.OrderService;
+import ru.clevertec.ecl.service.SmsSender;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -26,8 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static ru.clevertec.ecl.constants.Constants.EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT;
-import static ru.clevertec.ecl.constants.Constants.URL_CREATE_ORDER;
+import static ru.clevertec.ecl.constants.Constants.*;
 
 @Slf4j
 @Service
@@ -38,6 +38,7 @@ public class OrderServiceImpl implements OrderService {
     @Value("${server.port}")
     private final String localPort;
 
+    private final SmsSender smsSender;
     private final ObjectMapper mapper;
     private final OrderMapper orderMapper;
     private final UserRepository userRepository;
@@ -49,10 +50,10 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderDTO createOrder(InputDataOrderDTO inputDataOrder, Boolean saveToCommitLog) {
         final User user = userRepository.findById(inputDataOrder.getUserId()).orElseThrow(
-                () -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "user", inputDataOrder.getUserId())));
+                () -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, USER, inputDataOrder.getUserId())));
 
         final GiftCertificate giftCertificate = giftCertificateRepository.findById(inputDataOrder.getCertificateId()).orElseThrow(
-                () -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "giftCertificate", inputDataOrder.getCertificateId())));
+                () -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, GIFT_CERTIFICATE, inputDataOrder.getCertificateId())));
 
         final Order order = Order.builder()
                 .certificateId(giftCertificate.getId())
@@ -66,6 +67,7 @@ public class OrderServiceImpl implements OrderService {
         log.info("create order: {}", orderDTO);
         if (Objects.isNull(saveToCommitLog) || saveToCommitLog) {
             sendToCommitLogSave(orderDTO.getId(), inputDataOrder);
+            smsSender.sendSms(user.getPhone(), String.format(ORDER_SUCCESSFULLY_GENERATED, giftCertificate.getPrice()), SMS_SENDER);
         }
         return orderDTO;
     }
@@ -83,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Cacheable(value = "order", sync = true)
+    @Cacheable(value = ORDER, sync = true)
     public OrderListDTO findOrdersByUserId(Integer userId) {
         if (userRepository.findById(userId).isPresent()) {
             final List<OrderDTO> dto = orderRepository.findByUserId(userId).stream()
@@ -92,26 +94,26 @@ public class OrderServiceImpl implements OrderService {
             log.info("found orders - {}", dto);
             return OrderListDTO.builder().orderDTOList(dto).build();
         }
-        throw new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "user", userId));
+        throw new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, USER, userId));
     }
 
     @Override
-    @Cacheable(value = "order", sync = true)
+    @Cacheable(value = ORDER, sync = true)
     public OrderDTO findOrderByIdAndUserId(Integer userId, Integer orderId) {
         if (userRepository.findById(userId).isPresent()) {
             final OrderDTO dto = orderRepository.findByIdAndUserId(orderId, userId).map(orderMapper::toOrderDTO)
-                    .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "order", orderId)));
+                    .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, ORDER, orderId)));
             log.info("found orders - {}", dto);
             return dto;
         }
-        throw new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "user", userId));
+        throw new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, USER, userId));
     }
 
     @Override
-    @Cacheable(value = "order", sync = true)
+    @Cacheable(value = ORDER, sync = true)
     public OrderDTO findById(int id) {
         final OrderDTO dto = orderRepository.findById(id).map(orderMapper::toOrderDTO)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, "order", id)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(EXCEPTION_MESSAGE_ENTITY_NOT_FOUND_FORMAT, ORDER, id)));
         log.info("found order - {}", dto);
         return dto;
     }

@@ -15,5 +15,5 @@ import javax.validation.constraints.Positive;
 public class GiftCertificateDurationDTO {
     @NotNull
     @Positive
-    Integer duration;
+    private Integer duration;
 }

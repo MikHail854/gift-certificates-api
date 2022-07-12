@@ -13,14 +13,14 @@ import java.time.LocalDateTime;
 public class OrderDTO {
 
     @Positive
-    Integer id;
+    private Integer id;
     @Positive
-    Integer userId;
+    private Integer userId;
     @Positive
-    Integer certificateId;
+    private Integer certificateId;
     @Positive
-    Float price;
+    private Float price;
     @EqualsAndHashCode.Exclude
-    LocalDateTime purchaseDate;
+    private LocalDateTime purchaseDate;
 
 }

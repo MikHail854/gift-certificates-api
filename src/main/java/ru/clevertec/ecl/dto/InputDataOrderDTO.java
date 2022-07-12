@@ -13,7 +13,7 @@ import javax.validation.constraints.Positive;
 @AllArgsConstructor
 public class InputDataOrderDTO {
     @Positive
-    Integer userId;
+    private Integer userId;
     @Positive
-    Integer certificateId;
+    private Integer certificateId;
 }

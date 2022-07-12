@@ -19,11 +19,11 @@ public class GiftCertificateDTO {
     @Positive
     private Integer id;
 
-    @Pattern(regexp = "^[-a-zA-Zа-яА-Я]+(\\s+[-a-zA-Zа-яА-Я])*$")
+    @Pattern(regexp = "^[-a-zA-Zа-яА-Я0-9 ]*$")
     @Size(min = 2, max = 25, message = "Name should be between 2 and 25 characters")
     private String name;
 
-    @Pattern(regexp = "^[-a-zA-Zа-яА-Я0-9]+(\\s+[-a-zA-Zа-яА-Я0-9])*$")
+    @Pattern(regexp = "^[-a-zA-Zа-яА-Я0-9 ]*$")
     private String description;
 
     @Positive

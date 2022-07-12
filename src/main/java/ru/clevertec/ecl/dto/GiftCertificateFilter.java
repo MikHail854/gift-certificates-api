@@ -9,10 +9,10 @@ import javax.validation.constraints.Pattern;
 @Builder
 public class GiftCertificateFilter {
 
-    @Pattern(regexp = "^[-a-zA-Zа-яА-Я]+(\\s+[-a-zA-Zа-яА-Я])*$")
+    @Pattern(regexp = "^[-a-zA-Zа-яА-Я0-9 ]*$")
     String name;
 
-    @Pattern(regexp = "^[-a-zA-Zа-яА-Я0-9]+(\\s+[-a-zA-Zа-яА-Я0-9])*$")
+    @Pattern(regexp = "^[-a-zA-Zа-яА-Я0-9 ]*$")
     String description;
 
 }

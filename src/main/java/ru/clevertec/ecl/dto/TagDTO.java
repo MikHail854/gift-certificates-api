@@ -23,7 +23,7 @@ public class TagDTO {
 
     @NotBlank
     @Size(min = 2, max = 25, message = "Name should be between 2 and 25 characters")
-    @Pattern(regexp = "^[-a-zA-Zа-яА-Я0-9]*$")
+    @Pattern(regexp = "^[-a-zA-Zа-яА-Я0-9 ]*$")
     private String name;
 
 }
